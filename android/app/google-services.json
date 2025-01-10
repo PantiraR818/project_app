@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1063088516756",
+    "project_id": "wellbeing-65346-3644e",
+    "storage_bucket": "wellbeing-65346-3644e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1063088516756:android:bcfadf5687379072528e81",
+        "android_client_info": {
+          "package_name": "com.example.project_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1063088516756-odnm6atid6q32ld4qtj78181sjvk6720.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.project_app",
+            "certificate_hash": "c646407711ee0076047c4e03be0a2b454dad4fae"
+          }
+        },
+        {
+          "client_id": "1063088516756-8n26f30d7i6h1bv86mafiabvp2qfvn03.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbdVw3uqQqhx0wXrRW_nY8MOQIhtTQTKM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1063088516756-8n26f30d7i6h1bv86mafiabvp2qfvn03.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
