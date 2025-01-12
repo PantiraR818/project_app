@@ -9,7 +9,7 @@ class Massagenoti extends StatelessWidget {
         for (int i = 1; i < 5; i++)
           Container(
             height: 80,
-            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.white,

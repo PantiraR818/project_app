@@ -70,11 +70,12 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
           if (totalScore >= minScore && totalScore <= maxScore) {
             String message = range['nameInterpre'];
             double value = totalScore / maxScoreOverall; // คำนวณ progressValue
+            String color = range['color_Progress'];
 
             // ตั้งค่าผลลัพธ์
             setState(() {
               resultMessage = message;
-              progressColor = _getColorBasedOnMessage(message);
+              progressColor = Color(int.parse(color));
               progressValue = value; // ตั้งค่า progressValue ใหม่
             });
 
@@ -88,31 +89,6 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
     } catch (e) {
       print("Error: $e");
       return "เกิดข้อผิดพลาด";
-    }
-  }
-
-
-  // ฟังก์ชันเพื่อกำหนดสีตามผลลัพธ์
-  Color _getColorBasedOnMessage(String message) {
-    print('$message _____________________msg');
-    if (message == "เครียดน้อย") {
-      return Color(0xff16C47F); // สีเขียว
-    } else if (message == "เครียดปานกลาง") {
-      return Color(0xffFFB200); // สีเหลือง
-    } else if (message == "เครียดมาก") {
-      return Color(0xffFA812F); // สีแดง
-    } else if (message == "เครียดมากที่สุด") {
-      return Color(0xffF72C5B);
-      //   } else if (message.contains("สภาวะะซึมเศร้าระดับน้อยมาก")) {
-      //   return Colors.yellow; // สีเหลือง
-      // } else if (message.contains("สภาวะซึมเศร้าระดับน้อย")) {
-      //   return Colors.pink; // สีแดง
-      // } else if (message.contains("สภาวะซึมเศร้าระดับปานกลาง")) {
-      //   return Colors.red; // สีแดง
-      //   } else if (message.contains("สภาวะซึมเศร้าระดับรุนแรง")) {
-      //   return Colors.red; // สีแดง
-    } else {
-      return Colors.grey; // สีเริ่มต้น
     }
   }
 
@@ -304,7 +280,7 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
                                   "ผลการประเมิน",
                                   style: GoogleFonts.prompt(
                                     fontWeight: FontWeight.w600,
-                                    fontSize: fontSize + 2,
+                                    fontSize: fontSize + 6,
                                     color: Colors.orangeAccent,
                                   ),
                                 ),
@@ -339,7 +315,7 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
                                           backgroundColor: Colors.grey[300],
                                           color:
                                               progressColor, // ใช้สีที่เปลี่ยนตามผลลัพธ์
-                                          minHeight: 10.0,
+                                          minHeight: 14.0,
                                           semanticsLabel: 'Progress',
                                           semanticsValue:
                                               '$progressValue', // เพิ่มข้อมูลสำหรับการเข้าถึง
@@ -355,7 +331,7 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
                                           "ระดับความเสี่ยง",
                                           style: GoogleFonts.prompt(
                                             textStyle: const TextStyle(
-                                              fontSize: 12,
+                                              fontSize: 14,
                                               fontWeight: FontWeight.w400,
                                               color: Colors.black54,
                                             ),
@@ -365,8 +341,8 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
                                         Text(
                                           resultMessage,
                                           style: GoogleFonts.prompt(
-                                            fontSize: 14,
-                                            color: Colors.orangeAccent,
+                                            fontSize: 16,
+                                            color: progressColor,
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
@@ -379,7 +355,7 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
                               Text(
                                 "วิธีดูแลใจเบื้องต้น",
                                 style: GoogleFonts.prompt(
-                                  fontSize: fontSize + 2,
+                                  fontSize: fontSize + 3,
                                   color: const Color(0xffFF6893),
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -398,12 +374,12 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
                               Text(
                                 "คำแนะนำหลังการประเมิน (หน่วยงานภายใน)",
                                 style: GoogleFonts.prompt(
-                                  fontSize: fontSize,
+                                  fontSize: fontSize + 2,
                                   color: Colors.indigo,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-
+                              const SizedBox(height: 5),
                               ListView.builder(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 0.0, vertical: 2.0),

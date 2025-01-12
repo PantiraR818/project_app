@@ -1,9 +1,13 @@
 import 'package:badges/badges.dart' as badges;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:iconly/iconly.dart';
+import 'package:project_app/service/Auth_service.dart';
 
 class HomeAppBar extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -58,6 +62,7 @@ class HomeAppBar extends StatelessWidget {
                 // โค้ดเมื่อกด Logout (เช่น Navigator หรือ Alert Dialog)
                 print("Logout tapped");
                 // ตัวอย่างการไปยังหน้า Login
+                signOutFromGoogle();
                 Navigator.pushReplacementNamed(context, "/");
               },
               child: Icon(

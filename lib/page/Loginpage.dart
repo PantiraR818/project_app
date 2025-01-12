@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -165,6 +166,22 @@ class _LoginpageState extends State<Loginpage> {
       return null;
     }
   }
+
+  
+
+  // Future<UserCredential> signInWithMicrosoft() async {
+  //   // สร้าง OAuth Provider สำหรับ Microsoft
+  //   final microsoftProvider = OAuthProvider("microsoft.com");
+
+  //   // ตัวเลือกเพิ่มเติม (ถ้าจำเป็น)
+  //   microsoftProvider.setCustomParameters({
+  //     'prompt': 'consent', // เรียกดูการยินยอมใหม่ทุกครั้ง
+  //     'tenant': 'common', // ใช้สำหรับ tenant ทั่วไป
+  //   });
+
+  //   // เริ่มกระบวนการ Sign-in
+  //   return await FirebaseAuth.instance.signInWithProvider(microsoftProvider);
+  // }
 
   Future<void> saveInitialData(String uid, String email) async {
     // const apiUrl = "http://192.168.166.222/wellbeing_php/login.php";

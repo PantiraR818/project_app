@@ -5,6 +5,7 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
+import 'package:project_app/page/DataUser.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -193,6 +194,7 @@ class _ProfileState extends State<Profile> {
                                   ),
                                   TextButton(
                                     onPressed: () {
+                                      signOutFromGoogle();
                                       Navigator.pop(
                                           context); // ปิดหน้าต่างแจ้งเตือน
                                       Navigator.pushReplacementNamed(

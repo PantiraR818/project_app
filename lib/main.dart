@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -13,10 +14,13 @@ import 'package:project_app/page/Noti.dart';
 import 'package:project_app/page/Question.dart';
 import 'package:project_app/page/DataUser.dart';
 import 'package:project_app/page/UserInfoForm.dart';
+import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 void main() async {
-  await dotenv.load(fileName: ".env"); 
+  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized(); // สำหรับ async code ใน main
   await Firebase.initializeApp(); // เริ่มต้น Firebase
   runApp(MyApp());
