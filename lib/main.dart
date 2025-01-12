@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         "basicinfo02": (context) => Basicinfo02(status: '', formType_id: 0,),
         "dash": (context) => Dashboard(),
         "dashfirst": (context) => Dashboardfirst(),
-        "history": (context) => History(),
+        "history": (context) => History(), 
         // "test": (context) => Test(), // ปิดไว้หากไม่ได้ใช้งาน
       },
     );
