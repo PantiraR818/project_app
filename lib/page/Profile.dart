@@ -6,6 +6,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
 import 'package:project_app/page/DataUser.dart';
+import 'package:project_app/service/Auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -22,24 +24,26 @@ class _ProfileState extends State<Profile> {
   String faculty = '';
   String phone = '';
 
+  // void logout() {
+  //   setState(() {
+  //     // _accessToken = null;
+  //     // _userData = null;
+  //   });
+
+  //   print("Logged out successfully.");
+  // }
   // ฟังก์ชันในการดึงข้อมูลจาก API
   Future<void> fetchUserData() async {
-    final response = await http.get(
-        Uri.parse('${dotenv.env['URL_SERVER']}/acc_user/getAccUser'));
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body)['res'][0]; // ดึงข้อมูลจาก JSON
+   final prefs = await SharedPreferences.getInstance();
       setState(() {
-        name = data['name'];
-        email = data['email'];
-        gender = data['gender'];
-        idStudent = data['id_student'];
-        faculty = data['faculty'];
-        phone = data['phone'];
+        name = prefs.getString('name') ?? '';
+        email = prefs.getString('email') ?? '';
+        gender = prefs.getString('gender') ?? '';
+        idStudent = prefs.getString('id_student') ?? '';
+        faculty = prefs.getString('faculty') ?? '';
+        phone = prefs.getString('phone') ?? '';
       });
-    } else {
-      throw Exception('Failed to load user data');
-    }
+   
   }
 
   @override

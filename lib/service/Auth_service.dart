@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Google sign-in method
 Future<dynamic> signInWithGoogle() async {
@@ -38,8 +39,10 @@ Future<dynamic> signInWithGoogle() async {
   }
 }
 
- Future<bool> signOutFromGoogle() async {
+Future<bool> signOutFromGoogle() async {
   try {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
     await GoogleSignIn().disconnect();
     await GoogleSignIn().signOut();
     await FirebaseAuth.instance.signOut();

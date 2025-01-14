@@ -11,19 +11,6 @@ class Homepagecontent extends StatefulWidget {
 }
 
 class _HomepagecontentState extends State<Homepagecontent> {
-  List<String> titles = [
-    "แบบทดสอบความเครียด",
-    "แบบทดสอบซึมเศร้า",
-    "แบบทดสอบพลังสุขภาพจิต",
-    "คลินิกกำลังใจ",
-  ];
-
-  List<String> titlessub = [
-    "Stress Test Questionnaire",
-    "Nine Patient Health Questionnaire",
-    "Resilience Quotient",
-    "Mind counseling",
-  ];
 
   @override
   Widget build(BuildContext context) {

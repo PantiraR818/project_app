@@ -7,7 +7,14 @@ import 'package:iconly/iconly.dart';
 import 'package:project_app/service/Auth_service.dart';
 
 class HomeAppBar extends StatelessWidget {
+  // void logout() {
+  //   // setState(() {
+  //   //   _accessToken = null;
+  //   //   _userData = null;
+  //   // });
 
+  //   print("Logged out successfully.");
+  // }
   @override
   Widget build(BuildContext context) {
     return ListView(

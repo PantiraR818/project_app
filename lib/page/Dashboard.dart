@@ -35,7 +35,7 @@ class _DashboardState extends State<Dashboard> {
           ),
           onPressed: () {
             // Navigator.pushNamed(context, "dashfirst"); // ทำการย้อนกลับ
-            Navigator.pushNamed(context, "/"); // ทำการย้อนกลับ
+            Navigator.pushNamed(context, "dashfirst"); // ทำการย้อนกลับ
           },
         ),
       ),

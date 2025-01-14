@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,7 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_app/page/DataUser.dart';
 import 'package:project_app/page/HomepageContent.dart';
-import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage({super.key});
@@ -105,14 +104,7 @@ class _LoginpageState extends State<Loginpage> {
                         userCredential.value = await signInWithGoogle();
                         if (userCredential.value != null) {
                           final user = userCredential.value.user;
-                          await saveInitialData(user.uid, user.email ?? '');
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  Datauser(email: user.email ?? ''),
-                            ),
-                          );
+                          await saveInitialData(user.email ?? '');
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -167,23 +159,7 @@ class _LoginpageState extends State<Loginpage> {
     }
   }
 
-  
-
-  // Future<UserCredential> signInWithMicrosoft() async {
-  //   // สร้าง OAuth Provider สำหรับ Microsoft
-  //   final microsoftProvider = OAuthProvider("microsoft.com");
-
-  //   // ตัวเลือกเพิ่มเติม (ถ้าจำเป็น)
-  //   microsoftProvider.setCustomParameters({
-  //     'prompt': 'consent', // เรียกดูการยินยอมใหม่ทุกครั้ง
-  //     'tenant': 'common', // ใช้สำหรับ tenant ทั่วไป
-  //   });
-
-  //   // เริ่มกระบวนการ Sign-in
-  //   return await FirebaseAuth.instance.signInWithProvider(microsoftProvider);
-  // }
-
-  Future<void> saveInitialData(String uid, String email) async {
+  Future<void> saveInitialData(String email) async {
     // const apiUrl = "http://192.168.166.222/wellbeing_php/login.php";
     // ห้ามปิด ngrok-->cmd  ก่อนใช้งานต้องรันทุกครั้งและเปลี่ยนที่อยู่ทุกครั้ง
     final apiUrl = "${dotenv.env['URL_SERVER']}/acc_user/login";
@@ -194,16 +170,36 @@ class _LoginpageState extends State<Loginpage> {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'uid': uid,
           'email': email,
         }),
       );
       if (response.statusCode == 200) {
+        final prefs = await SharedPreferences.getInstance();
         final data = json.decode(response.body);
-        if (data['status'] == 'success') {
+
+        if (data['msg'] == 'create success') {
           print('Initial data saved successfully.');
+          await prefs.setString('email', email);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Datauser(email: email),
+            ),
+          );
+        }
+        if (data['msg'] == 'login success') {
+          final user = json.decode(response.body)['res'];
+          await prefs.setString('email', user['email']);
+          await prefs.setString('name', user['name']);
+          await prefs.setString('id_student', user['id_student']);
+          await prefs.setString('birthday', user['birthday']);
+          await prefs.setString('gender', user['gender']);
+          await prefs.setString('faculty', user['faculty']);
+          await prefs.setString('phone', user['phone']);
+          await prefs.setString('createdAt', user['createdAt']);
+          Navigator.pushNamed(context, "home");
         } else {
-          print('Error: ${data['message']}');
+          print('Error222: ${data['message']}');
         }
       } else {
         print('Failed to save initial data. Server error.');
