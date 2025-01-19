@@ -8,7 +8,9 @@ import 'package:project_app/page/DashboardFirst.dart';
 import 'package:project_app/page/History.dart';
 import 'package:project_app/page/Homepage.dart';
 import 'package:project_app/page/Loginpage.dart';
+import 'package:project_app/page/ModifyProfile.dart';
 import 'package:project_app/page/Noti.dart';
+import 'package:project_app/page/Profile.dart';
 import 'package:project_app/page/Question.dart';
 import 'package:project_app/page/DataUser.dart';
 
@@ -40,18 +42,13 @@ class MyApp extends StatelessWidget {
         "dash": (context) => Dashboard(),
         "dashfirst": (context) => Dashboardfirst(),
         "history": (context) => History(), 
+        "profile": (context) => Profile(), 
+        // "modify": (context) => Modifyprofile(email: ''),
+        // "/": (context) => Modifyprofile(email: ''),
+
         // "test": (context) => Test(), // ปิดไว้หากไม่ได้ใช้งาน
       },
     );
   }
 }
 
-class home extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Text("data"),
-    );
-  }
-
-}

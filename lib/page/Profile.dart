@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
 import 'package:project_app/page/DataUser.dart';
+import 'package:project_app/page/ModifyProfile.dart';
 import 'package:project_app/service/Auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,16 +35,15 @@ class _ProfileState extends State<Profile> {
   // }
   // ฟังก์ชันในการดึงข้อมูลจาก API
   Future<void> fetchUserData() async {
-   final prefs = await SharedPreferences.getInstance();
-      setState(() {
-        name = prefs.getString('name') ?? '';
-        email = prefs.getString('email') ?? '';
-        gender = prefs.getString('gender') ?? '';
-        idStudent = prefs.getString('id_student') ?? '';
-        faculty = prefs.getString('faculty') ?? '';
-        phone = prefs.getString('phone') ?? '';
-      });
-   
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      name = prefs.getString('name') ?? '';
+      email = prefs.getString('email') ?? '';
+      gender = prefs.getString('gender') ?? '';
+      idStudent = prefs.getString('id_student') ?? '';
+      faculty = prefs.getString('faculty') ?? '';
+      phone = prefs.getString('phone') ?? '';
+    });
   }
 
   @override
@@ -100,8 +100,9 @@ class _ProfileState extends State<Profile> {
                                           // ? Color(0xffffcca5) // สีสำหรับเพศชาย
                                           : gender == "LGBTQIAN+"
                                               ? Color(0xffffe5a6)
-                                                   // สีสำหรับ LGBTQIAN+
-                                              : Color(0xffffe5a6) , // สีเริ่มต้นกรณีเพศไม่ระบุ,
+                                              // สีสำหรับ LGBTQIAN+
+                                              : Color(
+                                                  0xffffe5a6), // สีเริ่มต้นกรณีเพศไม่ระบุ,
                                 ),
                                 child: ClipOval(
                                   child: Image.asset(
@@ -171,89 +172,127 @@ class _ProfileState extends State<Profile> {
                         ),
                         const SizedBox(
                             height: 30), // ระยะห่างระหว่างข้อมูลและปุ่ม
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildInfoBox(context, "วันเดือนปีเกิด", faculty,
+                                screenWidth),
+                          ],
+                        ),
 
-                        // ปุ่มออกจากระบบ
-                        GestureDetector(
-                          onTap: () {
-                            // ฟังก์ชันเมื่อกดปุ่มออกจากระบบ
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text(
-                                  "ยืนยันการออกจากระบบ",
-                                  style: GoogleFonts.prompt(),
-                                ),
-                                content: Text(
-                                  "คุณต้องการออกจากระบบหรือไม่?",
-                                  style: GoogleFonts.prompt(),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(
-                                        context), // ปิดหน้าต่างแจ้งเตือน
-                                    child: Text(
-                                      "ยกเลิก",
-                                      style: GoogleFonts.prompt(),
-                                    ),
+                        const SizedBox(height: 30),
+                        Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment.center, // จัดให้อยู่ตรงกลาง
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        Modifyprofile(email: ''),
                                   ),
-                                  TextButton(
-                                    onPressed: () {
-                                      signOutFromGoogle();
-                                      Navigator.pop(
-                                          context); // ปิดหน้าต่างแจ้งเตือน
-                                      Navigator.pushReplacementNamed(
-                                          context, "/"); // ไปยังหน้าล็อกอิน
-                                    },
-                                    child: Text(
-                                      "ออกจากระบบ",
-                                      style: GoogleFonts.prompt(),
-                                    ),
-                                  ),
-                                ],
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xffFF6893),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                elevation: 4.0,
+                                minimumSize:
+                                    Size(screenWidth * 0.4, 45), // ปรับขนาดปุ่ม
                               ),
-                            );
-                          },
-                          child: Container(
-                            width:
-                                screenWidth * 0.5, // ปรับขนาดปุ่มตามขนาดหน้าจอ
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.indigo, // สีปุ่ม
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 3),
+                              child: Text(
+                                'แก้ไขข้อมูลส่วนตัว',
+                                style: GoogleFonts.prompt(
+                                  textStyle: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold
+                                  ),
                                 ),
-                              ],
+                              ),
                             ),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.center, // จัดกึ่งกลาง
-                                children: [
-                                  Text(
-                                    "ออกจากระบบ",
-                                    style: GoogleFonts.prompt(
-                                      textStyle: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                        color: Colors.white,
+                            const SizedBox(width: 20), // เว้นระยะระหว่างปุ่ม
+                            GestureDetector(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(
+                                      "ยืนยันการออกจากระบบ",
+                                      style: GoogleFonts.prompt(),
+                                    ),
+                                    content: Text(
+                                      "คุณต้องการออกจากระบบหรือไม่?",
+                                      style: GoogleFonts.prompt(),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text(
+                                          "ยกเลิก",
+                                          style: GoogleFonts.prompt(),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          signOutFromGoogle();
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacementNamed(
+                                              context, "/");
+                                        },
+                                        
+                                        child: Text(
+                                          "ออกจากระบบ",
+                                          style: GoogleFonts.prompt(),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 20),
+                                decoration: BoxDecoration(
+                                  color: Colors.indigo,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      "ออกจากระบบ",
+                                      style: GoogleFonts.prompt(
+                                        textStyle: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Icon(
-                                    Icons.logout, // ไอคอนออกจากระบบ
-                                    color: Colors.white,
-                                    size: 20, // ขนาดของไอคอน
-                                  ),
-                                ],
+                                    const SizedBox(width: 8),
+                                    Icon(
+                                      Icons.logout,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),

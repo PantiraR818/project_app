@@ -11,15 +11,16 @@ import 'package:http/http.dart' as http;
 import 'package:project_app/service/Auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Datauser extends StatefulWidget {
+class Modifyprofile extends StatefulWidget {
   final String email;
-  const Datauser({super.key, required this.email});
+  const Modifyprofile({super.key, required this.email});
+
 
   @override
-  State<Datauser> createState() => _DatauserState();
+  State<Modifyprofile> createState() => _ModifyprofileState();
 }
 
-class _DatauserState extends State<Datauser> {
+class _ModifyprofileState extends State<Modifyprofile> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _studentIdController = TextEditingController();
@@ -121,7 +122,9 @@ class _DatauserState extends State<Datauser> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildIconButton(IconlyLight.heart, Colors.white, () {}),
+                       _buildIconButton(IconlyLight.arrow_left, Colors.white, () {
+                        Navigator.pop(context);
+                      }),
                       Text(
                         "WELLBEING",
                         style: GoogleFonts.prompt(
@@ -132,15 +135,14 @@ class _DatauserState extends State<Datauser> {
                           ),
                         ),
                       ),
-                      _buildIconButton(IconlyLight.logout, Colors.white, () {
-                        signOutFromGoogle();
-                        Navigator.pop(context);
+                      _buildIconButton(IconlyLight.heart, Colors.white, () {
+                      
                       }),
                     ],
                   ),
                   SizedBox(height: screenHeight * 0.02),
                   Image.asset(
-                    "assets/images/result04.png",
+                    "assets/images/result05.png",
                     width: screenWidth * 0.5,
                     height: screenWidth * 0.4,
                   ),
@@ -165,7 +167,7 @@ class _DatauserState extends State<Datauser> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "กรอกข้อมูลเบื้องต้น (เพิ่มเติม) :",
+                            "แก้ไขข้อมูลส่วนตัว :",
                             style: GoogleFonts.prompt(
                               textStyle: TextStyle(
                                 fontSize: 18,
@@ -173,12 +175,88 @@ class _DatauserState extends State<Datauser> {
                                 color: Color(0xFF756EB9),
                               ),
                             ),
-                          ),                        
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          Text(
+                            "ชื่ออยากให้เราแก้ไข",
+                            style: GoogleFonts.prompt(
+                              textStyle: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xffFF6893),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          _buildTextField(
+                            "กรอกชื่อของคุณ",
+                            _nameController,
+                            (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'กรุณากรอกชื่อ';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          Text(
+                            "รหัสนักศึกษาที่อยากให้เราแก้ไข",
+                            style: GoogleFonts.prompt(
+                              textStyle: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xffFF6893),
+                              ),
+                            ),
+                          ),
+                          Text(
+                            "---  กรณีไม่มีให้ ขีด -  ---",
+                            style: GoogleFonts.prompt(
+                              textStyle: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF756EB9),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          _buildTextField(
+                            "กรอกรหัสนักศึกษาของคุณ",
+                            _studentIdController,
+                            (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'กรุณากรอกรหัสนักศึกษา';
+                              }
+                              return null;
+                            },
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          Text(
+                            "เบอร์ที่อยากให้เราแก้ไข",
+                            style: GoogleFonts.prompt(
+                              textStyle: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xffFF6893),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          _buildTextField(
+                            "กรอกเบอร์ที่สามารถติดต่อได้",
+                            _phoneController,
+                            (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'กรุณากรอกเบอร์ติดต่อ';
+                              }
+                              return null;
+                            },
+                          ),
                           SizedBox(height: screenHeight * 0.02),
                           _buildDatePicker(),
                           SizedBox(height: screenHeight * 0.02),
                           _buildDropdown(
-                            label: "เพศ",
+                            label: "เพศที่อยากให้เราแก้ไข",
                             items: ["ชาย", "หญิง", "LGBTQIAN+"],
                             value: selectedGender,
                             onChanged: (value) {
@@ -186,12 +264,37 @@ class _DatauserState extends State<Datauser> {
                                 selectedGender = value!;
                               });
                             },
-                          ),                         
+                          ),
+                          SizedBox(height: screenHeight * 0.02),
+                          _buildDropdownfaculty(
+                            label: "คณะที่สังกัดที่อยากให้เราแก้ไข",
+                            items: [
+                              "คณะวิศวกรรมศาสตร์ (วศ.)",
+                              "คณะบริหารธุรกิจ (บธ.)",
+                              "คณะเทคโนโลยีคหกรรมศาสตร์ (ทค.)",
+                              "คณะศิลปกรรมศาสตร์ (ศก.)",
+                              "คณะเทคโนโลยีการเกษตร (ทก.)",
+                              "คณะครุศาสตร์อุตสาหกรรม (คอ.)",
+                              "คณะสถาปัตยกรรมศาสตร์ (สถ.)",
+                              "คณะเทคโนโลยีสื่อสารมวลชน (ทสม.)",
+                              "คณะศิลปศาสตร์ (ศศ.)",
+                              "คณะการแพทย์บูรณาการ (กพบ.)",
+                              "คณะวิทยาศาสตร์และเทคโนโลยี (วท.)",
+                              "คณะพยาบาลศาสตร์",
+                              "อื่น ๆ"
+                            ],
+                            value: selectedfaculty,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedfaculty = value!;
+                              });
+                            },
+                          ),
                           SizedBox(height: screenHeight * 0.04),
                           GestureDetector(
                             onTap: () {
                               _updateUserData();
-                              Navigator.pushNamed(context, "home");
+                              Navigator.pushNamed(context, "profile");
                             },
                             child: Container(
                               width: double.infinity,
@@ -214,7 +317,7 @@ class _DatauserState extends State<Datauser> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "เข้าสู่หน้าแบบประเมิน",
+                                    "อัปเดตข้อมูล",
                                     style: GoogleFonts.prompt(
                                       textStyle: TextStyle(
                                         fontWeight: FontWeight.w500,
@@ -307,7 +410,7 @@ class _DatauserState extends State<Datauser> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "วันเดือนปีเกิด",
+          "วันเดือนปีเกิดที่ต้องการแก้ไข",
           style: GoogleFonts.prompt(
             textStyle: const TextStyle(
               fontWeight: FontWeight.w600,

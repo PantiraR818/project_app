@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_app/page/DataUser.dart';
+import 'package:project_app/page/Homepage.dart';
 import 'package:project_app/page/HomepageContent.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -197,7 +198,13 @@ class _LoginpageState extends State<Loginpage> {
           await prefs.setString('faculty', user['faculty']);
           await prefs.setString('phone', user['phone']);
           await prefs.setString('createdAt', user['createdAt']);
-          Navigator.pushNamed(context, "home");
+
+              Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Homepage(),
+            ),
+          );
         } else {
           print('Error222: ${data['message']}');
         }
