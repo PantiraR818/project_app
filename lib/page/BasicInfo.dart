@@ -23,7 +23,7 @@ class Basicinfo extends StatefulWidget {
 class _BasicinfoState extends State<Basicinfo> {
   int? _selectedIndex;
   List<StatusUser> statusUser = [];
-  String statusName = '';
+  int statusId = 0;
 
   Future<void> fetchStatusUser() async {
     final response = await http.get(
@@ -178,7 +178,7 @@ class _BasicinfoState extends State<Basicinfo> {
                                     MaterialPageRoute(
                                       builder: (context) => Basicinfo02(
                                         formType_id: widget.formType_id,
-                                        status: statusName,
+                                        status: statusId,
                                       ),
                                     ),
                                   );
@@ -231,7 +231,8 @@ class _BasicinfoState extends State<Basicinfo> {
       onTap: () {
         setState(() {
           _selectedIndex = index;
-          statusName = statusUser[index].status;
+          statusId = statusUser[index].id;
+          print('statusId -=-=-= >> $statusId ');
         });
       },
       child: AnimatedContainer(

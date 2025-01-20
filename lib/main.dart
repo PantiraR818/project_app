@@ -35,10 +35,10 @@ class MyApp extends StatelessWidget {
         "/": (context) => Loginpage(), // หน้าแรก Loginpage
         "home": (context) => Homepage(),
         "notification": (context) => Noti(),
-        "question": (context) => Question(status: '', formType_id: 0,),
+        "question": (context) => Question(status: 0, formType_id: 0,),
         "dataUser": (context) => Datauser(email: '',),
         "basicinfo01": (context) => Basicinfo(formType_id: 0,),
-        "basicinfo02": (context) => Basicinfo02(status: '', formType_id: 0,),
+        "basicinfo02": (context) => Basicinfo02(status: 0, formType_id: 0,),
         "dash": (context) => Dashboard(),
         "dashfirst": (context) => Dashboardfirst(),
         "history": (context) => History(), 

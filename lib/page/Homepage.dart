@@ -93,40 +93,4 @@ class _HomepageState extends State<Homepage> {
       ),
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     body: _pages[_selectedIndex], // หน้าเนื้อหา
-  //     bottomNavigationBar: BottomNavigationBar(
-  //       type: BottomNavigationBarType.fixed,
-  //       currentIndex: _selectedIndex,
-  //       onTap: _onItemTapped,
-  //       backgroundColor: Colors.white,
-  //       elevation: 0, // ลบเส้นและเงา
-  //       selectedItemColor: Colors.indigo[400],
-  //       selectedLabelStyle: GoogleFonts.prompt(fontWeight: FontWeight.w400),
-  //       unselectedItemColor: Colors.grey,
-  //       unselectedLabelStyle: GoogleFonts.prompt(fontWeight: FontWeight.w400),
-  //       items: [
-  //         BottomNavigationBarItem(
-  //           icon: Icon(IconlyLight.home),
-  //           label: "Home",
-  //         ),
-  //         BottomNavigationBarItem(
-  //           icon: Icon(IconlyLight.chart),
-  //           label: "Dashboard",
-  //         ),
-  //         BottomNavigationBarItem(
-  //           icon: Icon(IconlyLight.bookmark),
-  //           label: "History",
-  //         ),
-  //         BottomNavigationBarItem(
-  //           icon: Icon(IconlyLight.profile),
-  //           label: "Profile",
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 }

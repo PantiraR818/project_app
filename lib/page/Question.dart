@@ -10,11 +10,15 @@ import 'package:project_app/service/option.dart';
 import 'package:project_app/service/question.dart';
 
 class Question extends StatefulWidget {
-  final String status;
+  final int status;
   final int? worry_id;
   final int formType_id;
-  
-  const Question({super.key, required this.status, required this.formType_id, this.worry_id});
+
+  const Question(
+      {super.key,
+      required this.status,
+      required this.formType_id,
+      this.worry_id});
 
   @override
   State<Question> createState() => _QuestionState();
@@ -24,8 +28,9 @@ class _QuestionState extends State<Question> {
   String? selectedAnswer;
   List<QuestionInterface> question = [];
   List<Option> option = [];
-  int currentIndex = 0; 
-  List<String> answers = []; 
+  int currentIndex = 0;
+  List<String> answers = [];
+  List<Map<String, dynamic>> answersSelect = [];
 
   Future<void> fetchQuestionAndOption() async {
     try {
@@ -136,7 +141,7 @@ class _QuestionState extends State<Question> {
                   if (int.parse(newValue!) == 4) {
                     newValue = (int.parse(newValue!) - 3).toString();
                   }
-                  
+
                   if (answers.length > currentIndex) {
                     answers[currentIndex] = newValue!;
                   } else {
@@ -148,6 +153,17 @@ class _QuestionState extends State<Question> {
                   } else {
                     answers.add(newValue!);
                   }
+                }
+                if (answersSelect.length > currentIndex) {
+                  answersSelect[currentIndex] = {
+                    'optionId': option.id,
+                    'questionId': qution.id,
+                  };
+                } else {
+                  answersSelect.add({
+                    'optionId': option.id,
+                    'questionId': qution.id,
+                  });
                 }
               });
             },
@@ -161,6 +177,7 @@ class _QuestionState extends State<Question> {
   void initState() {
     super.initState();
     fetchQuestionAndOption();
+    print('stauts in qu ${widget.status}');
   }
 
   @override
@@ -289,6 +306,8 @@ class _QuestionState extends State<Question> {
                               builder: (context) => Result(
                                 worry_id: widget.worry_id,
                                 formType_id: widget.formType_id,
+                                answers: answersSelect,
+                                status: widget.status,
                                 totalScore: answers.fold<int>(
                                   0,
                                   (sum, socre) {

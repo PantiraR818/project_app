@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:project_app/page/Homepage.dart';
 import 'package:project_app/service/Auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -344,7 +345,7 @@ class _ModifyprofileState extends State<Modifyprofile> {
               ),
             ),
           ],
-        ),
+        ),     
       ),
     );
   }
@@ -587,18 +588,3 @@ class _ModifyprofileState extends State<Modifyprofile> {
   }
 }
 
-// (โค้ด _buildTextField, _buildDatePicker, และ _buildDropdown ไม่เปลี่ยนแปลง)
-
-// Future<bool> signOutFromGoogle() async {
-//   try {
-//     final prefs = await SharedPreferences.getInstance();
-//     await prefs.clear();
-//     await GoogleSignIn().disconnect();
-//     await GoogleSignIn().signOut();
-//     await FirebaseAuth.instance.signOut();
-//     return true;
-//   } catch (e) {
-//     print('Logout exception: $e');
-//     return false;
-//   }
-// }

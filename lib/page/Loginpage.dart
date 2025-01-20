@@ -64,12 +64,13 @@ class _LoginpageState extends State<Loginpage> {
                   const SizedBox(height: 15),
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Homepagecontent(),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => Homepagecontent(),
+                      //   ),
+                      // );
+                       Navigator.pushNamed(context, "home");
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
@@ -198,13 +199,7 @@ class _LoginpageState extends State<Loginpage> {
           await prefs.setString('faculty', user['faculty']);
           await prefs.setString('phone', user['phone']);
           await prefs.setString('createdAt', user['createdAt']);
-
-              Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Homepage(),
-            ),
-          );
+          Navigator.pushNamed(context, "home");
         } else {
           print('Error222: ${data['message']}');
         }

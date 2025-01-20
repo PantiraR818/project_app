@@ -6,19 +6,22 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Result extends StatefulWidget {
   final int totalScore;
-  final String? status;
+  final int? status;
   final int? formType_id;
   final int? worry_id;
+  final List<Map<String, dynamic>> answers; // Added list of answers
 
   const Result(
       {super.key,
       required this.totalScore,
       this.status,
       this.formType_id,
-      this.worry_id});
+      this.worry_id,
+      required this.answers});
 
   @override
   State<Result> createState() => _ResultState();
@@ -29,6 +32,7 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
   late Animation<double> _animation;
   late Color progressColor = Colors.orangeAccent;
   double progressValue = 0.0; // กำหนดค่าเริ่มต้นของ progressValue
+  String id_student = '';
 
   String resultMessage = "กำลังโหลด...";
   int maxScoreOverall = 0;
@@ -37,7 +41,7 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
   List<String> fucName = [];
   List<dynamic> guidanceData = []; // รายการข้อมูลคำแนะนำที่สุ่มมา
 
-  void _getResultMessage() async {
+  Future<void> _getResultMessage() async {
     String message = await fetchResult(widget.totalScore);
     setState(() {
       resultMessage = message;
@@ -135,12 +139,59 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
     }
   }
 
+  Future<void> fetchDataFromSharedPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // ดึงค่าจาก SharedPreferences
+    setState(() {
+      id_student = prefs.getString("id_student") ?? "";
+    });
+  }
+
+  Future<void> saveAll() async {
+    try {
+      final response = await http.post(
+        Uri.parse('${dotenv.env['URL_SERVER']}/save_data/save_data'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "formtype_id": widget.formType_id,
+          "acc_id": id_student,
+          "interpre_level": resultMessage,
+          "score": widget.totalScore,
+          "status_id": widget.status,
+          "concern_id": widget.worry_id,
+          "question_select": widget.answers.map((answer) {
+            return {
+              "queston_id": answer['questionId'],
+              "option_id": answer['optionId'],
+            };
+          }).toList(), // เปลี่ยน map เป็น List ที่สามารถ encode ได้
+        }),
+      );
+      if (response.statusCode == 200) {
+        print(response.body);
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> fetchDataAndSave() async {
+    await fetchDataFromSharedPreferences();
+    await _getResultMessage();
+    if (id_student != '') {
+      saveAll();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _getResultMessage();
     fetchMatch();
-    fetchGuidance(); // เรียกฟังก์ชันเพื่อดึงข้อมูลตาม formType_id
+    fetchGuidance();
+    fetchDataAndSave(); // เรียกฟังก์ชันเพื่อดึงข้อมูลตาม formType_id
 
     _controller = AnimationController(
       vsync: this,
@@ -153,7 +204,7 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
         curve: Curves.easeInOut,
       ),
     );
-
+    print('op qu --=-=-=-=-=-= ${widget.answers} -=-=-=-=-=-=-=-=');
     _controller.forward();
   }
 

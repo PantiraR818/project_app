@@ -25,6 +25,7 @@ class _CategorieswidgetState extends State<Categorieswidget> {
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body)['res'];
       print("_______________________type______________________ $data");
+      
       setState(() {
         formTypes = data.map((item) => FormType.fromJson(item)).toList();
       });

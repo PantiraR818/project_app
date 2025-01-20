@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
 import 'package:project_app/page/DataUser.dart';
+import 'package:project_app/page/Homepage.dart';
 import 'package:project_app/page/ModifyProfile.dart';
 import 'package:project_app/service/Auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,6 +25,7 @@ class _ProfileState extends State<Profile> {
   String idStudent = '';
   String faculty = '';
   String phone = '';
+  String birthday = '';
 
   // void logout() {
   //   setState(() {
@@ -43,6 +45,7 @@ class _ProfileState extends State<Profile> {
       idStudent = prefs.getString('id_student') ?? '';
       faculty = prefs.getString('faculty') ?? '';
       phone = prefs.getString('phone') ?? '';
+      birthday = prefs.getString('birthday') ?? '';
     });
   }
 
@@ -175,7 +178,7 @@ class _ProfileState extends State<Profile> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _buildInfoBox(context, "วันเดือนปีเกิด", faculty,
+                            _buildInfoBox(context, "วันเดือนปีเกิด", birthday,
                                 screenWidth),
                           ],
                         ),
@@ -208,10 +211,9 @@ class _ProfileState extends State<Profile> {
                                 'แก้ไขข้อมูลส่วนตัว',
                                 style: GoogleFonts.prompt(
                                   textStyle: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold
-                                  ),
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -244,7 +246,6 @@ class _ProfileState extends State<Profile> {
                                           Navigator.pushReplacementNamed(
                                               context, "/");
                                         },
-                                        
                                         child: Text(
                                           "ออกจากระบบ",
                                           style: GoogleFonts.prompt(),
@@ -303,6 +304,7 @@ class _ProfileState extends State<Profile> {
           ),
         ),
       ),
+     
     );
   }
 

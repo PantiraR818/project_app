@@ -9,7 +9,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class Basicinfo02 extends StatefulWidget {
-  final String status;
+  final int status;
   final int formType_id;
   const Basicinfo02({super.key, required this.status, required this.formType_id});
 
@@ -42,6 +42,7 @@ class _Basicinfo02State extends State<Basicinfo02> {
   void initState() {
     super.initState();
     fetchBasicWorry(); // ดึงข้อมูลเมื่อ widget ถูกสร้าง
+    print('status ----.> ${widget.status}');
     // print('$basicworry ----->');
   }
 
