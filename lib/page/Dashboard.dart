@@ -41,7 +41,8 @@ class _DashboardState extends State<Dashboard> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          color: Colors.white, // ตั้งค่าพื้นหลังของ SingleChildScrollView เป็นสีขาว
+          color: Colors
+              .white, // ตั้งค่าพื้นหลังของ SingleChildScrollView เป็นสีขาว
           child: Padding(
             padding: const EdgeInsets.all(26.0),
             child: Column(
@@ -69,47 +70,6 @@ class _DashboardState extends State<Dashboard> {
                   ]), // กราฟที่ 1
                 ),
                 const SizedBox(height: 20),
-                // กราฟที่สอง
-                // Text(
-                //   'ภาพรวมระบบ (สภาวะซึมเศร้า)',
-                //   style: GoogleFonts.prompt(
-                //     textStyle: const TextStyle(
-                //       fontSize: 18,
-                //       fontWeight: FontWeight.bold,
-                //       color: Color(0xffFF6893),
-                //     ),
-                //   ),
-                // ),
-                // SizedBox(
-                //   height: 400,
-                //   child: BarChartSample7(dataList: [
-                //     const _BarData(Colors.red, 12, 14),
-                //     const _BarData(Colors.yellow, 6, 9),
-                //     const _BarData(Colors.cyan, 4, 5),
-                //     const _BarData(Colors.teal, 8, 11),
-                //   ]), // กราฟที่ 2
-                // ),
-                // const SizedBox(height: 20),
-                // // กราฟที่สาม
-                // Text(
-                //   'ภาพรวมระบบ (พลังสุขภาพจิต)',
-                //   style: GoogleFonts.prompt(
-                //     textStyle: const TextStyle(
-                //       fontSize: 18,
-                //       fontWeight: FontWeight.bold,
-                //       color: Color(0xffFF6893),
-                //     ),
-                //   ),
-                // ),
-                // SizedBox(
-                //   height: 400,
-                //   child: BarChartSample7(dataList: [
-                //     const _BarData(Colors.pink, 9, 13),
-                //     const _BarData(Colors.indigo, 3, 7),
-                //     const _BarData(Colors.brown, 1, 3),
-                //     const _BarData(Colors.amber, 6, 9),
-                //   ]), // กราฟที่ 3
-                // ),
               ],
             ),
           ),
@@ -191,7 +151,7 @@ class _BarChartSample7State extends State<BarChartSample7> {
               getTitlesWidget: (value, meta) {
                 final index = value.toInt();
                 return SideTitleWidget(
-                  axisSide: meta.axisSide,
+                  meta: meta, // Pass 'meta' directly here
                   child: _IconWidget(
                     color: widget.dataList[index].color,
                     isSelected: touchedGroupIndex == index,
@@ -304,7 +264,8 @@ class _IconWidgetState extends AnimatedWidgetBaseState<_IconWidget> {
     _rotationTween = visitor(
       _rotationTween,
       widget.isSelected ? 1.0 : 0.0,
-      (dynamic value) => Tween<double>(begin: value as double, end: widget.isSelected ? 1.0 : 0.0),
+      (dynamic value) => Tween<double>(
+          begin: value as double, end: widget.isSelected ? 1.0 : 0.0),
     ) as Tween<double>?;
   }
 }

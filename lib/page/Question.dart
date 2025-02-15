@@ -11,17 +11,22 @@ import 'package:project_app/service/question.dart';
 
 class Question extends StatefulWidget {
   final int status;
-  final int? worry_id;
+  final List<Map<String, dynamic>> worry_id; 
   final int formType_id;
 
   const Question(
       {super.key,
       required this.status,
-      required this.formType_id,
-      this.worry_id});
+      required this.formType_id, 
+      required this.worry_id,
+      });
 
   @override
   State<Question> createState() => _QuestionState();
+
+  static fromJson(json) {}
+
+  toJson() {}
 }
 
 class _QuestionState extends State<Question> {
@@ -178,6 +183,7 @@ class _QuestionState extends State<Question> {
     super.initState();
     fetchQuestionAndOption();
     print('stauts in qu ${widget.status}');
+    print('worry_id in qu ${widget.worry_id}');
   }
 
   @override

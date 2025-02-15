@@ -14,8 +14,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Modifyprofile extends StatefulWidget {
   final String email;
-  const Modifyprofile({super.key, required this.email});
-
+  final String name;
+  final String gender;
+  final String idStudent;
+  final String faculty;
+  final String phone;
+  final String birthday;
+  const Modifyprofile(
+      {super.key,
+      required this.email,
+      required this.name,
+      required this.gender,
+      required this.idStudent,
+      required this.faculty,
+      required this.phone,
+      required this.birthday});
 
   @override
   State<Modifyprofile> createState() => _ModifyprofileState();
@@ -27,8 +40,8 @@ class _ModifyprofileState extends State<Modifyprofile> {
   final TextEditingController _studentIdController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   // final TextEditingController _facultyController = TextEditingController();
-  String selectedGender = "ชาย";
-  String selectedfaculty = "คณะวิศวกรรมศาสตร์ (วศ.)";
+  String selectedGender = '';
+  String selectedfaculty = '';
   DateTime? selectedDate;
 
   Future<void> _updateUserData() async {
@@ -69,6 +82,7 @@ class _ModifyprofileState extends State<Modifyprofile> {
           if (result['msg'] == 'Update Success') {
             print('__________________ $user _____________________');
             final prefs = await SharedPreferences.getInstance();
+            // await prefs.clear();
             await prefs.setString('name', user['name']);
             await prefs.setString('id_student', user['id_student']);
             await prefs.setString('birthday', user['birthday']);
@@ -79,6 +93,15 @@ class _ModifyprofileState extends State<Modifyprofile> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(result['msg'])),
             );
+            Navigator.pop(context, {
+              'name': user['name'],
+              'id_student': user['id_student'],
+              'birthday': user['birthday'],
+              'gender': user['gender'],
+              'faculty': user['faculty'],
+              'phone': user['phone'],
+              'createdAt': user['createdAt'],
+            });
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(result['msg'])),
@@ -95,6 +118,19 @@ class _ModifyprofileState extends State<Modifyprofile> {
         );
       }
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      selectedGender = widget.gender;
+      selectedfaculty = widget.faculty;
+      _nameController.text = widget.name;
+      _studentIdController.text = widget.idStudent;
+      _phoneController.text = widget.phone;
+      selectedDate = DateTime.parse(widget.birthday);
+    });
   }
 
   @override
@@ -123,7 +159,8 @@ class _ModifyprofileState extends State<Modifyprofile> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                       _buildIconButton(IconlyLight.arrow_left, Colors.white, () {
+                      _buildIconButton(IconlyLight.arrow_left, Colors.white,
+                          () {
                         Navigator.pop(context);
                       }),
                       Text(
@@ -136,9 +173,7 @@ class _ModifyprofileState extends State<Modifyprofile> {
                           ),
                         ),
                       ),
-                      _buildIconButton(IconlyLight.heart, Colors.white, () {
-                      
-                      }),
+                      _buildIconButton(IconlyLight.heart, Colors.white, () {}),
                     ],
                   ),
                   SizedBox(height: screenHeight * 0.02),
@@ -190,7 +225,7 @@ class _ModifyprofileState extends State<Modifyprofile> {
                           ),
                           SizedBox(height: screenHeight * 0.02),
                           _buildTextField(
-                            "กรอกชื่อของคุณ",
+                            widget.name,
                             _nameController,
                             (value) {
                               if (value == null || value.isEmpty) {
@@ -222,7 +257,7 @@ class _ModifyprofileState extends State<Modifyprofile> {
                           ),
                           SizedBox(height: screenHeight * 0.02),
                           _buildTextField(
-                            "กรอกรหัสนักศึกษาของคุณ",
+                            widget.idStudent,
                             _studentIdController,
                             (value) {
                               if (value == null || value.isEmpty) {
@@ -244,7 +279,7 @@ class _ModifyprofileState extends State<Modifyprofile> {
                           ),
                           SizedBox(height: screenHeight * 0.02),
                           _buildTextField(
-                            "กรอกเบอร์ที่สามารถติดต่อได้",
+                            widget.phone,
                             _phoneController,
                             (value) {
                               if (value == null || value.isEmpty) {
@@ -270,17 +305,17 @@ class _ModifyprofileState extends State<Modifyprofile> {
                           _buildDropdownfaculty(
                             label: "คณะที่สังกัดที่อยากให้เราแก้ไข",
                             items: [
-                              "คณะวิศวกรรมศาสตร์ (วศ.)",
-                              "คณะบริหารธุรกิจ (บธ.)",
-                              "คณะเทคโนโลยีคหกรรมศาสตร์ (ทค.)",
-                              "คณะศิลปกรรมศาสตร์ (ศก.)",
-                              "คณะเทคโนโลยีการเกษตร (ทก.)",
-                              "คณะครุศาสตร์อุตสาหกรรม (คอ.)",
-                              "คณะสถาปัตยกรรมศาสตร์ (สถ.)",
-                              "คณะเทคโนโลยีสื่อสารมวลชน (ทสม.)",
-                              "คณะศิลปศาสตร์ (ศศ.)",
-                              "คณะการแพทย์บูรณาการ (กพบ.)",
-                              "คณะวิทยาศาสตร์และเทคโนโลยี (วท.)",
+                              "คณะวิศวกรรมศาสตร์",
+                              "คณะบริหารธุรกิจ",
+                              "คณะเทคโนโลยีคหกรรมศาสตร์",
+                              "คณะศิลปกรรมศาสตร์",
+                              "คณะเทคโนโลยีการเกษตร",
+                              "คณะครุศาสตร์อุตสาหกรรม",
+                              "คณะสถาปัตยกรรมศาสตร์",
+                              "คณะเทคโนโลยีสื่อสารมวลชน",
+                              "คณะศิลปศาสตร์",
+                              "คณะการแพทย์บูรณาการ",
+                              "คณะวิทยาศาสตร์และเทคโนโลยี",
                               "คณะพยาบาลศาสตร์",
                               "อื่น ๆ"
                             ],
@@ -295,7 +330,6 @@ class _ModifyprofileState extends State<Modifyprofile> {
                           GestureDetector(
                             onTap: () {
                               _updateUserData();
-                              Navigator.pushNamed(context, "profile");
                             },
                             child: Container(
                               width: double.infinity,
@@ -345,7 +379,7 @@ class _ModifyprofileState extends State<Modifyprofile> {
               ),
             ),
           ],
-        ),     
+        ),
       ),
     );
   }
@@ -455,7 +489,7 @@ class _ModifyprofileState extends State<Modifyprofile> {
                 Text(
                   selectedDate != null
                       ? DateFormat('dd/MM/yyyy').format(selectedDate!)
-                      : "เลือกวันเดือนปีเกิด",
+                      : widget.birthday,
                   style: GoogleFonts.prompt(
                     textStyle: const TextStyle(
                       fontSize: 14,
@@ -587,4 +621,3 @@ class _ModifyprofileState extends State<Modifyprofile> {
     );
   }
 }
-

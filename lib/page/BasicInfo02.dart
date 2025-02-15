@@ -11,7 +11,8 @@ import 'package:http/http.dart' as http;
 class Basicinfo02 extends StatefulWidget {
   final int status;
   final int formType_id;
-  const Basicinfo02({super.key, required this.status, required this.formType_id});
+  const Basicinfo02(
+      {super.key, required this.status, required this.formType_id});
 
   @override
   State<Basicinfo02> createState() => _Basicinfo02State();
@@ -22,6 +23,7 @@ class _Basicinfo02State extends State<Basicinfo02> {
   List<BasicWorry> basicworry = [];
 
   List<bool> selectedOptions = [];
+  List<Map<String, dynamic>> selectedItems = [];
 
   Future<void> fetchBasicWorry() async {
     final response = await http.get(
@@ -156,24 +158,25 @@ class _Basicinfo02State extends State<Basicinfo02> {
                       // ปุ่มถัดไป
                       ElevatedButton(
                         onPressed: () {
-                          int selectedItems = 0;
                           for (int i = 0; i < selectedOptions.length; i++) {
                             if (selectedOptions[i]) {
-                              selectedItems = basicworry[i].id;
+                              selectedItems.add({
+                                'match_id': basicworry[i].id
+                              }); // เพิ่ม Map เข้าไปใน List
                             }
                           }
                           print("Selected: $selectedItems");
                           Navigator.pushNamed(context, "question");
-                             Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Question(
-                                        formType_id: widget.formType_id,
-                                        status: widget.status,
-                                        worry_id: selectedItems,
-                                      ),
-                                    ),
-                                  );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Question(
+                                formType_id: widget.formType_id,
+                                status: widget.status,
+                                worry_id: selectedItems,
+                              ),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xffFF6893),

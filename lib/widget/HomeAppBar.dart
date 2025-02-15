@@ -1,12 +1,18 @@
-import 'package:badges/badges.dart' as badges;
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:aad_oauth/aad_oauth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:iconly/iconly.dart';
 import 'package:project_app/service/Auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomeAppBar extends StatelessWidget {
+class HomeAppBar extends StatefulWidget {
+  final AadOAuth oauth;
+  const HomeAppBar({super.key, required this.oauth});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _HomeAppBar();
+  }
   // void logout() {
   //   // setState(() {
   //   //   _accessToken = null;
@@ -15,6 +21,23 @@ class HomeAppBar extends StatelessWidget {
 
   //   print("Logged out successfully.");
   // }
+}
+
+class _HomeAppBar extends State<HomeAppBar> {
+  String name = '';
+  Future<void> fetchUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      name = prefs.getString('name') ?? '';
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData(); // เรียกใช้ฟังก์ชันดึงข้อมูลเมื่อเริ่มต้น
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -33,7 +56,7 @@ class HomeAppBar extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(left: 10),
               child: Text(
-                "สวัสดี, R.",
+                "สวัสดี , $name",
                 style: GoogleFonts.prompt(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -42,34 +65,15 @@ class HomeAppBar extends StatelessWidget {
               ),
             ),
             Spacer(), // ดัน widgets ไปทางขวา
-
-            // Badge สำหรับ Notification
-            badges.Badge(
-              badgeContent: Text(
-                "3", // ตัวอย่างจำนวน notification
-                style: TextStyle(color: Colors.white, fontSize: 10),
-              ),
-              child: InkWell(
-                onTap: () {
-                  Navigator.pushNamed(context, "notification");
-                },
-                child: Icon(
-                  IconlyLight.notification,
-                  color: Colors.indigo[400],
-                  size: 30,
-                ),
-              ),
-            ),
-
             SizedBox(width: 15), // ระยะห่างระหว่าง Icons
-
             // ปุ่ม Logout
             InkWell(
               onTap: () {
                 // โค้ดเมื่อกด Logout (เช่น Navigator หรือ Alert Dialog)
                 print("Logout tapped");
+                logout(widget.oauth);
                 // ตัวอย่างการไปยังหน้า Login
-                signOutFromGoogle();
+                // signOutFromGoogle();
                 Navigator.pushReplacementNamed(context, "/");
               },
               child: Icon(

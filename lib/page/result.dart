@@ -12,7 +12,8 @@ class Result extends StatefulWidget {
   final int totalScore;
   final int? status;
   final int? formType_id;
-  final int? worry_id;
+
+  final List<Map<String, dynamic>> worry_id;
   final List<Map<String, dynamic>> answers; // Added list of answers
 
   const Result(
@@ -20,7 +21,7 @@ class Result extends StatefulWidget {
       required this.totalScore,
       this.status,
       this.formType_id,
-      this.worry_id,
+      required this.worry_id,
       required this.answers});
 
   @override
@@ -124,18 +125,39 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
   }
 
   Future<void> fetchMatch() async {
-    final response = await http.get(Uri.parse(
-        '${dotenv.env['URL_SERVER']}/matchWorry_Fac/getMatchWorryandFac/${widget.worry_id}'));
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body)['res'];
-      setState(() {
-        for (var v in data) {
-          fucName.add(v["faculties"]["faculties"]);
-          tel.add(v["faculties"]["phone"].replaceAll(' , ', '\n'));
-        }
-      });
-    } else {
-      throw Exception('Failed to load form types');
+    try {
+      final response = await http.post(
+        Uri.parse(
+            '${dotenv.env['URL_SERVER']}/matchWorry_Fac/getMatchWorryandFac'),
+        headers: {
+          'Content-Type': 'application/json', // ระบุว่า body เป็น JSON
+        },
+        body: jsonEncode({
+          "worry_list": widget.worry_id.map((id) {
+            return {
+              "id": id['match_id'],
+            };
+          }).toList(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body)['res'];
+        setState(() {
+          for (var v in data) {
+            // เช็คว่ามีข้อมูล faculties หรือไม่ ก่อนเพิ่มลง list
+            if (v["faculties"] != null) {
+              fucName.add(v["faculties"]["faculties"] ?? "Unknown Faculty");
+              tel.add((v["faculties"]["phone"] ?? "No Phone")
+                  .replaceAll(' , ', '\n'));
+            }
+          }
+        });
+      } else {
+        throw Exception('Failed to load form types');
+      }
+    } catch (error) {
+      print("Error fetching match data: $error");
     }
   }
 
@@ -160,8 +182,13 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
           "acc_id": id_student,
           "interpre_level": resultMessage,
           "score": widget.totalScore,
+          "interpre_color": '$progressColor',
           "status_id": widget.status,
-          "concern_id": widget.worry_id,
+          "concern_list": widget.worry_id.map((id) {
+            return {
+              "id": id['match_id'],
+            };
+          }).toList(),
           "question_select": widget.answers.map((answer) {
             return {
               "queston_id": answer['questionId'],
@@ -170,10 +197,15 @@ class _ResultState extends State<Result> with SingleTickerProviderStateMixin {
           }).toList(), // เปลี่ยน map เป็น List ที่สามารถ encode ได้
         }),
       );
+      print(
+          'sava data ${response.statusCode}---=-=-=> ________________________________________________________');
       if (response.statusCode == 200) {
         print(response.body);
       }
     } catch (e) {
+      print(
+          'sava data error---=-=-=> ________________________________________________________');
+
       print(e);
     }
   }

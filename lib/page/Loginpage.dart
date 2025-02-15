@@ -6,19 +6,120 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_app/page/DataUser.dart';
-import 'package:project_app/page/Homepage.dart';
-import 'package:project_app/page/HomepageContent.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:aad_oauth/aad_oauth.dart';
 
 class Loginpage extends StatefulWidget {
-  const Loginpage({super.key});
+  final AadOAuth oauth;
+  const Loginpage({super.key, required this.oauth});
 
   @override
   State<Loginpage> createState() => _LoginpageState();
 }
 
 class _LoginpageState extends State<Loginpage> {
+  String? _accessToken;
+  Map<String, dynamic>? _userData;
   ValueNotifier userCredential = ValueNotifier('');
+  Future<void> _checkLoginStatus() async {
+    String? accessToken = await widget.oauth.getAccessToken();
+    if (accessToken != null) {
+      setState(() {
+        _accessToken = accessToken;
+      });
+      await fetchUserData(); // เรียกใช้ฟังก์ชัน showData หลังจากล็อกอินสำเร็จ
+    }
+  }
+
+  Future<void> loginMS() async {
+    try {
+      await widget.oauth.login();
+      String? accessToken = await widget.oauth.getAccessToken();
+      setState(() {
+        _accessToken = accessToken;
+      });
+      print("Access Token: $_accessToken");
+
+      if (_accessToken != null) {
+        await fetchUserData(); // เรียกใช้ฟังก์ชัน showData หลังจากล็อกอินสำเร็จ
+      }
+    } catch (e) {
+      print("Login Error: $e");
+    }
+  }
+
+  Future<void> fetchUserData() async {
+    if (_accessToken == null) {
+      print("Please login first.");
+      return;
+    }
+
+    try {
+      // ดึงข้อมูลจาก OIDC
+      final userInfoResponse = await http.get(
+        Uri.parse('https://graph.microsoft.com/oidc/userinfo'),
+        headers: {'Authorization': 'Bearer $_accessToken'},
+      );
+
+      // ดึงข้อมูลจาก Microsoft Graph v1.0
+      final userGraphResponse = await http.get(
+        Uri.parse('https://graph.microsoft.com/v1.0/me'),
+        headers: {'Authorization': 'Bearer $_accessToken'},
+      );
+
+      if (userInfoResponse.statusCode == 200 &&
+          userGraphResponse.statusCode == 200) {
+        final userInfo = json.decode(utf8.decode(userInfoResponse.bodyBytes));
+        final userData = json.decode(utf8.decode(userGraphResponse.bodyBytes));
+
+        // รวมข้อมูลจากทั้งสอง API
+        final email = userInfo['email'] ?? userData['mail'] ?? '';
+        final id = email.contains('@') ? email.split('@')[0] : null;
+        if (id != null) userData['id'] = id;
+
+        // ดึง department เพิ่มเติม
+        final userPrincipalName = email.isNotEmpty ? email : id;
+        if (userPrincipalName != null) {
+          final userDetailsResponse = await http.get(
+            Uri.parse(
+                'https://graph.microsoft.com/v1.0/users/$userPrincipalName?\$select=department'),
+            headers: {'Authorization': 'Bearer $_accessToken'},
+          );
+
+          if (userDetailsResponse.statusCode == 200) {
+            final userDetails =
+                json.decode(utf8.decode(userDetailsResponse.bodyBytes));
+            userData.addAll(userDetails);
+          } else {
+            print(
+                "Error fetching user details: ${userDetailsResponse.statusCode}");
+          }
+        }
+
+        setState(() async {
+          _userData = userData;
+          if (_userData != null) {
+            await saveInitialData(
+              _userData!['mail'] ?? '',
+              _userData!['displayName'] ?? '',
+              _userData!['id']?.toString() ?? '',
+              _userData!['department'] ?? '',
+              _userData!['mobilePhone'] ?? '',
+            );
+          } else {
+            print("Error: _userData is null.");
+          }
+        });
+
+        print("User Data latest: $_userData");
+      } else {
+        print(
+            "Error fetching user info: ${userInfoResponse.statusCode}, ${userGraphResponse.statusCode}");
+      }
+    } catch (e) {
+      print("Fetch User Data Error: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,13 +165,7 @@ class _LoginpageState extends State<Loginpage> {
                   const SizedBox(height: 15),
                   ElevatedButton(
                     onPressed: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => Homepagecontent(),
-                      //   ),
-                      // );
-                       Navigator.pushNamed(context, "home");
+                      Navigator.pushNamed(context, "home");
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
@@ -103,11 +198,7 @@ class _LoginpageState extends State<Loginpage> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: ElevatedButton.icon(
                       onPressed: () async {
-                        userCredential.value = await signInWithGoogle();
-                        if (userCredential.value != null) {
-                          final user = userCredential.value.user;
-                          await saveInitialData(user.email ?? '');
-                        }
+                        loginMS();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
@@ -121,11 +212,11 @@ class _LoginpageState extends State<Loginpage> {
                         ),
                       ),
                       icon: Image.asset(
-                        'assets/images/google.png',
+                        'assets/images/ms.png',
                         height: 24,
                       ),
                       label: Text(
-                        "Login with Google",
+                        "Login with Microsoft",
                         style: GoogleFonts.inter(
                           color: Colors.black,
                           fontSize: subtitleFontSize,
@@ -161,7 +252,8 @@ class _LoginpageState extends State<Loginpage> {
     }
   }
 
-  Future<void> saveInitialData(String email) async {
+  Future<void> saveInitialData(String mail, String displayName, String id,
+      String department, String mobilePhone) async {
     // const apiUrl = "http://192.168.166.222/wellbeing_php/login.php";
     // ห้ามปิด ngrok-->cmd  ก่อนใช้งานต้องรันทุกครั้งและเปลี่ยนที่อยู่ทุกครั้ง
     final apiUrl = "${dotenv.env['URL_SERVER']}/acc_user/login";
@@ -172,26 +264,35 @@ class _LoginpageState extends State<Loginpage> {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'email': email,
+          'email': mail,
+          'name': displayName,
+          'id_student': id,
+          'faculty': department,
+          'phone': mobilePhone,
         }),
       );
       if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
         final data = json.decode(response.body);
+        final user = json.decode(response.body)['res'];
 
         if (data['msg'] == 'create success') {
           print('Initial data saved successfully.');
-          await prefs.setString('email', email);
+          await prefs.setString('email', mail);
+          await prefs.setInt('id', user['id']);
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => Datauser(email: email),
+              builder: (context) => Datauser(
+                email: mail,
+                oauth: widget.oauth,
+              ),
             ),
           );
         }
         if (data['msg'] == 'login success') {
-          final user = json.decode(response.body)['res'];
           await prefs.setString('email', user['email']);
+          await prefs.setInt('id', user['id']);
           await prefs.setString('name', user['name']);
           await prefs.setString('id_student', user['id_student']);
           await prefs.setString('birthday', user['birthday']);
@@ -200,9 +301,7 @@ class _LoginpageState extends State<Loginpage> {
           await prefs.setString('phone', user['phone']);
           await prefs.setString('createdAt', user['createdAt']);
           Navigator.pushNamed(context, "home");
-        } else {
-          print('Error222: ${data['message']}');
-        }
+        } 
       } else {
         print('Failed to save initial data. Server error.');
       }

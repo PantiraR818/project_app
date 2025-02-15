@@ -26,4 +26,6 @@ class FormType {
       type: json['type'],
     );
   }
+
+  toJson() {}
 }

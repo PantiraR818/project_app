@@ -1,3 +1,4 @@
+import 'package:aad_oauth/aad_oauth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,6 +38,12 @@ Future<dynamic> signInWithGoogle() async {
     print('exception->$e');
     return null;
   }
+}
+
+void logout(AadOAuth oauth) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
+  oauth.logout();
 }
 
 Future<bool> signOutFromGoogle() async {

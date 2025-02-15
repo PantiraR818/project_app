@@ -1,18 +1,14 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:aad_oauth/aad_oauth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconly/iconly.dart';
-import 'package:project_app/page/DataUser.dart';
-import 'package:project_app/page/Homepage.dart';
 import 'package:project_app/page/ModifyProfile.dart';
 import 'package:project_app/service/Auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
-  const Profile({super.key});
+  final AadOAuth oauth;
+  const Profile({super.key, required this.oauth});
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -27,14 +23,7 @@ class _ProfileState extends State<Profile> {
   String phone = '';
   String birthday = '';
 
-  // void logout() {
-  //   setState(() {
-  //     // _accessToken = null;
-  //     // _userData = null;
-  //   });
 
-  //   print("Logged out successfully.");
-  // }
   // ฟังก์ชันในการดึงข้อมูลจาก API
   Future<void> fetchUserData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -193,10 +182,29 @@ class _ProfileState extends State<Profile> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        Modifyprofile(email: ''),
+                                    builder: (context) => Modifyprofile(
+                                      email: email,
+                                      name: name,
+                                      gender: gender,
+                                      faculty: faculty,
+                                      idStudent: idStudent,
+                                      phone: phone,
+                                      birthday: birthday,
+                                    ),
                                   ),
-                                );
+                                ).then((updatedData) {
+                                  if (updatedData != null) {
+                                    // อัปเดตข้อมูลที่หน้า 1
+                                    setState(() {
+                                      name = updatedData['name'];
+                                      idStudent = updatedData['id_student'];
+                                      birthday = updatedData['birthday'];
+                                      gender = updatedData['gender'];
+                                      faculty = updatedData['faculty'];
+                                      phone = updatedData['phone'];
+                                    });
+                                  }
+                                });
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Color(0xffFF6893),
@@ -241,7 +249,8 @@ class _ProfileState extends State<Profile> {
                                       ),
                                       TextButton(
                                         onPressed: () {
-                                          signOutFromGoogle();
+                                          // signOutFromGoogle();
+                                          logout(widget.oauth);
                                           Navigator.pop(context);
                                           Navigator.pushReplacementNamed(
                                               context, "/");
@@ -304,7 +313,6 @@ class _ProfileState extends State<Profile> {
           ),
         ),
       ),
-     
     );
   }
 

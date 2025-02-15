@@ -50,7 +50,7 @@ dependencies:
   flutter_custom_clippers: ^2.1.0
   percent_indicator: ^4.2.4
   flutter_svg: ^2.0.5
-  fl_chart: ^0.69.2
+  fl_chart: ^0.70.2
   intl: ^0.19.0
   syncfusion_flutter_datepicker: ^28.1.33
   google_sign_in: ^6.1.5
@@ -61,6 +61,8 @@ dependencies:
   flutter_dotenv: ^5.2.1
   syncfusion_flutter_charts: ^28.1.35
   aad_oauth: ^1.0.1
+  smooth_page_indicator: ^1.2.0+3
+  flutter_local_notifications: ^18.0.1
   # flutter_web_auth: ^0.6.0
   # http: ^1.2.2
  
@@ -123,12 +125,14 @@ flutter:
     - assets/images/result05.png
     - assets/images/result06.png
     - assets/images/google.png
+    - assets/images/ms.png
     - assets/images/info01.svg
     - assets/images/info02.svg
     - assets/images/info03.svg
     - assets/images/info04.svg
     - assets/images/info05.svg
     - assets/images/info06.svg
+    - assets/images/noti.png
     # - assets/images/Q10.png
 
 

@@ -1,20 +1,17 @@
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'package:aad_oauth/aad_oauth.dart';
 import 'package:iconly/iconly.dart';
-import 'package:project_app/page/Dashboard.dart';
 import 'package:project_app/page/DashboardFirst.dart';
 import 'package:project_app/page/History.dart';
 import 'package:project_app/page/HomepageContent.dart';
 import 'package:project_app/page/Profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:water_drop_nav_bar/water_drop_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:project_app/widget/CategoriesWidget.dart';
-import 'package:project_app/widget/HomeAppBar.dart';
 
 class Homepage extends StatefulWidget {
-  const Homepage({super.key});
+  final AadOAuth oauth;
+
+  const Homepage({super.key, required this.oauth});
 
   @override
   State<Homepage> createState() => _HomepageState();
@@ -23,14 +20,8 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   int _selectedIndex = 0; // เก็บ index ของหน้า
   String? pref;
+  late List<Widget> _pages;
 
-  final List<Widget> _pages = [
-    Homepagecontent(),
-    Dashboardfirst(),
-    History(),
-    Profile(),
-  ];
-  // ฟังก์ชันสำหรับเปลี่ยนหน้า
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index; // เมื่อแตะที่ item ใน BottomNavigationBar
@@ -52,11 +43,26 @@ class _HomepageState extends State<Homepage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _pages = [
+      Homepagecontent(
+        oauth: widget.oauth,
+      ),
+      Dashboardfirst(),
+      History(),
+      Profile(oauth: widget.oauth),
+    ];
+  }
+
+  @override
   Widget build(BuildContext context) {
     // ตรวจสอบว่าข้อมูลใน pref มีหรือยัง
     if (pref == null) {
       // ถ้ายังไม่มีข้อมูล ให้แสดงหน้าว่างหรือ loading indicator
-      return Homepagecontent();
+      return Homepagecontent(
+        oauth: widget.oauth,
+      );
     }
 
     // ถ้ามีข้อมูลใน pref แล้ว ให้ build UI ตามปกติ

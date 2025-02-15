@@ -51,7 +51,6 @@ class Dashappbar extends StatelessWidget {
           ],
         ),
         // เพิ่ม Widgets อื่นๆ ที่จะใช้ใน AppBar ได้ที่นี่
-        // CategoriesWidget()
       ],
     );
   }

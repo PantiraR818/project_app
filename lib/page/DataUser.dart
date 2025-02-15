@@ -10,10 +10,13 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_app/service/Auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:aad_oauth/aad_oauth.dart';
 
 class Datauser extends StatefulWidget {
+  final AadOAuth oauth;
+
   final String email;
-  const Datauser({super.key, required this.email});
+  const Datauser({super.key, required this.email, required this.oauth});
 
   @override
   State<Datauser> createState() => _DatauserState();
@@ -33,7 +36,6 @@ class _DatauserState extends State<Datauser> {
     final url =
         // 'http://192.168.166.222/wellbeing_php/update_user.php'; // เปลี่ยน URL เป็นของคุณ
         '${dotenv.env['URL_SERVER']}/acc_user/updateUser'; // เปลี่ยน URL เป็นของคุณ
-
     if (_formKey.currentState!.validate()) {
       if (selectedDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -41,14 +43,9 @@ class _DatauserState extends State<Datauser> {
         );
         return;
       }
-
       final userData = {
-        'name': _nameController.text,
-        'id_student': _studentIdController.text,
         'gender': selectedGender,
         'birthday': DateFormat('yyyy-MM-dd').format(selectedDate!),
-        'faculty': selectedfaculty,
-        'phone': _phoneController.text,
         'email': widget.email,
       };
 
@@ -133,7 +130,8 @@ class _DatauserState extends State<Datauser> {
                         ),
                       ),
                       _buildIconButton(IconlyLight.logout, Colors.white, () {
-                        signOutFromGoogle();
+                        logout(widget.oauth);
+                        // signOutFromGoogle();
                         Navigator.pop(context);
                       }),
                     ],
@@ -173,7 +171,7 @@ class _DatauserState extends State<Datauser> {
                                 color: Color(0xFF756EB9),
                               ),
                             ),
-                          ),                        
+                          ),
                           SizedBox(height: screenHeight * 0.02),
                           _buildDatePicker(),
                           SizedBox(height: screenHeight * 0.02),
@@ -186,7 +184,7 @@ class _DatauserState extends State<Datauser> {
                                 selectedGender = value!;
                               });
                             },
-                          ),                         
+                          ),
                           SizedBox(height: screenHeight * 0.04),
                           GestureDetector(
                             onTap: () {
