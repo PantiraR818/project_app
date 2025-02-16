@@ -137,6 +137,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.11"
+  emoji_data:
+    dependency: "direct main"
+    description:
+      name: emoji_data
+      sha256: "0704928b83cbee6612a6cb4f342b25f3e40502c98908c5ab029451de65b73c58"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   equatable:
     dependency: transitive
     description:
@@ -225,6 +233,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.70.2"
+  fluentui_emoji_icon:
+    dependency: "direct main"
+    description:
+      name: fluentui_emoji_icon
+      sha256: "50d8f19547a8e2dad3084b124478c56dac3d1c44f1802ca4c9098187276318cc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -352,6 +368,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.8.0"
+  git:
+    dependency: transitive
+    description:
+      name: git
+      sha256: de678c6f0d5e2761c2c3643d31b1010883cc4d3e352949ef7c15f98f27d676ea
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.1"
   google_fonts:
     dependency: "direct main"
     description:
@@ -616,6 +640,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.2"
+  recase:
+    dependency: transitive
+    description:
+      name: recase
+      sha256: e4eb4ec2dcdee52dcf99cb4ceabaffc631d7424ee55e56f280bc039737f89213
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
+  rw_git:
+    dependency: transitive
+    description:
+      name: rw_git
+      sha256: "5c6321f336b42369fd46a44353d142c430e3a9173cecedb017faecf92168c1fc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   salomon_bottom_bar:
     dependency: "direct main"
     description:

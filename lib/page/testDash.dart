@@ -8,6 +8,7 @@ import 'package:project_app/service/form_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:http/http.dart' as http;
+import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
 
 class TestDash extends StatefulWidget {
   final int formType_id;
@@ -55,6 +56,64 @@ class _TestDashState extends State<TestDash> {
       print("Error fetching data: $error");
     }
   }
+
+  final Map<String, FluentUiEmojiIcon> emojiMap = {
+    "เครียดน้อย": FluentUiEmojiIcon(
+      w: 100,
+      h: 100,
+      fl: Fluents.flGrinningFace,
+    ),
+    "เครียดปานกลาง": FluentUiEmojiIcon(
+      w: 100,
+      h: 100,
+      fl: Fluents.flConfusedFace,
+    ),
+    "เครียดมาก": FluentUiEmojiIcon(
+      w: 100,
+      h: 100,
+      fl: Fluents.flDisappointedFace,
+    ),
+    "เครียดมากที่สุด": FluentUiEmojiIcon(
+      w: 100,
+      h: 100,
+      fl: Fluents.flAngryFace,
+    ),
+    "ซึมเศร้าระดับน้อยมาก": FluentUiEmojiIcon(
+      w: 100,
+      h: 100,
+      fl: Fluents.flSmilingFaceWithHearts,
+    ),
+    "ซึมเศร้าระดับน้อย": FluentUiEmojiIcon(
+      w: 100,
+      h: 100,
+      fl: Fluents.flGrinningFace,
+    ),
+    "ซึมเศร้าระดับปานกลาง": FluentUiEmojiIcon(
+      w: 100,
+      h: 100,
+      fl: Fluents.flConfusedFace,
+    ),
+    "ซึมเศร้าระดับรุนแรง": FluentUiEmojiIcon(
+      w: 100,
+      h: 100,
+      fl: Fluents.flAngryFace,
+    ),
+    "พลังสุขภาพจิตระดับต่ำ": FluentUiEmojiIcon(
+      w: 100,
+      h: 100,
+      fl: Fluents.flConfusedFace,
+    ),
+    "พลังสุขภาพจิตระดับปกติ": FluentUiEmojiIcon(
+      w: 100,
+      h: 100,
+      fl: Fluents.flSmilingFace,
+    ),
+    "พลังสุขภาพจิตระดับสูง": FluentUiEmojiIcon(
+      w: 100,
+      h: 100,
+      fl: Fluents.flSmilingFaceWithHearts,
+    ),
+  };
 
   double _getStressLevelValue(String stressLevel) {
     int index = stressLevels.indexOf(stressLevel);
@@ -317,11 +376,11 @@ class _TestDashState extends State<TestDash> {
                                 .tight, // ทำให้ BarChart ใช้พื้นที่ที่เหลือ
                             child: BarChart(
                               BarChartData(
-                                minY: 0, // เริ่มที่ 0
+                                minY: 0,
                                 maxY: (chartData.isNotEmpty
                                     ? (chartData
                                             .map((e) => e['y'] as int)
-                                            .toSet() // กำจัดค่าซ้ำ
+                                            .toSet()
                                             .reduce((a, b) => a > b ? a : b) +
                                         2)
                                     : 10),
@@ -362,19 +421,29 @@ class _TestDashState extends State<TestDash> {
                                   bottomTitles: AxisTitles(
                                     sideTitles: SideTitles(
                                       showTitles: true,
+                                      reservedSize:
+                                          55, // ขยายพื้นที่ด้านล่าง emoji จะได้ไม่ติด bar
                                       getTitlesWidget: (value, meta) {
                                         int index = value.toInt();
                                         if (index >= 0 &&
                                             index < chartData.length) {
-                                          return Text(
-                                            chartData[index]['x'],
-                                            style: GoogleFonts.prompt(
-                                              textStyle: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          );
+                                          String text = chartData[index]['x'];
+                                          if (emojiMap.containsKey(text)) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top:
+                                                      10.0), // เพิ่มระยะให้ emoji
+                                              child: emojiMap[text]!,
+                                            );
+                                          } else {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 10.0),
+                                              child: Icon(Icons.help_outline,
+                                                  color: Colors.white,
+                                                  size: 20),
+                                            );
+                                          }
                                         }
                                         return SizedBox.shrink();
                                       },
@@ -390,37 +459,64 @@ class _TestDashState extends State<TestDash> {
                               ),
                             ),
                           ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            "คำอธิบายแสดงระดับสุขภาพใจ",
-                            style: GoogleFonts.prompt(
-                              textStyle: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                          // Use SizedBox to define a fixed height for ListView
-                          SizedBox(
-                            height:
-                                200, // กำหนดความสูงที่ต้องการให้กับ ListView
-                            child: ListView.builder(
-                              itemCount: chartData.length,
-                              itemBuilder: (context, index) {
-                                return Text(
-                                  "${chartData[index]['x']}",
-                                  style: GoogleFonts.prompt(
-                                    textStyle: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                          SizedBox(height: 4),
+                          Column(
+                            // mainAxisSize:
+                            //     MainAxisSize.min, // ป้องกัน Column ยืดเกินไป
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "คำอธิบายแสดงระดับสุขภาพใจ",
+                                style: GoogleFonts.prompt(
+                                  textStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              ),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: chartData.length,
+                                itemBuilder: (context, index) {
+                                  String text =
+                                      "${chartData[index]['x']}"; // ค่าจาก chartData
+
+                                  // ค้นหา Emoji จาก emojiMap โดยใช้ text ที่ได้
+                                  FluentUiEmojiIcon? emoji = emojiMap[text];
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 5), // ลดช่องไฟระหว่างข้อความ
+                                    child: Row(
+                                      children: [
+                                        if (emoji != null)
+                                          SizedBox(
+                                            width: 30, // กำหนดขนาดของ Emoji
+                                            height: 30, // กำหนดขนาดของ Emoji
+                                            child: emoji,
+                                          ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        // แสดงข้อความหลัง Emoji
+                                        Text(
+                                          text,
+                                          style: GoogleFonts.prompt(
+                                            textStyle: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              )
+                            ],
                           ),
                         ],
                       )),

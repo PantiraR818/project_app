@@ -63,6 +63,8 @@ dependencies:
   aad_oauth: ^1.0.1
   smooth_page_indicator: ^1.2.0+3
   flutter_local_notifications: ^18.0.1
+  emoji_data: ^1.0.0
+  fluentui_emoji_icon: ^0.0.2
   # flutter_web_auth: ^0.6.0
   # http: ^1.2.2
  
