@@ -65,6 +65,7 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   emoji_data: ^1.0.0
   fluentui_emoji_icon: ^0.0.2
+  flutter_launcher_icons: ^0.14.3
   # flutter_web_auth: ^0.6.0
   # http: ^1.2.2
  
@@ -74,7 +75,13 @@ dev_dependencies:
 flutter_test:
   sdk: flutter  # ใช้ 2 spaces
 
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/result04.png"
 
+flutter_launcher_name:
+  name: "WELLBEING"
 
   # The "flutter_lints" package below containsS a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -124,8 +131,10 @@ flutter:
     - assets/images/result02.png
     - assets/images/result03.png
     - assets/images/result04.png
+    - assets/images/result041.png
     - assets/images/result05.png
     - assets/images/result06.png
+    - assets/images/Counseling.png
     - assets/images/google.png
     - assets/images/ms.png
     - assets/images/info01.svg

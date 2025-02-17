@@ -138,11 +138,11 @@ class _CounselingState extends State<Counseling> {
                               ),
                               const SizedBox(height: 20),
                               Image.asset(
-                                "assets/images/result01.png",
+                                "assets/images/Counseling.png",
                                 height: constraints.maxHeight * 0.4,
                                 width: constraints.maxHeight * 0.4,
                               ),
-                               const SizedBox(width: 20),                          
+                              const SizedBox(width: 20),
                             ],
                           ),
                         ),
