@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:project_app/Splash.Screen.dart';
+import 'package:project_app/lineC.dart';
 import 'package:project_app/page/BasicInfo.dart';
 import 'package:project_app/page/BasicInfo02.dart';
 import 'package:project_app/page/Dashboard.dart';
@@ -46,44 +47,45 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
       ),
-      initialRoute: "/", // หน้าเริ่มต้น
-      routes: {
-        "/": (context) => SplashScreen(), // เช็ค login 
-        "login": (context) => Loginpage(oauth: oauth,), // หน้าแรก Loginpage
-        "home": (context) => Homepage(oauth: oauth,),
-        // "/": (context) => Homepage(),
-        "messagenoti": (context) => Messagenoti(
-              message: [],
-            ),
-        "question": (context) => Question(
-              status: 0,
-              formType_id: 0,
-              worry_id: [],
-            ),
-        "dataUser": (context) => Datauser(
-              email: '', oauth: oauth,
-            ),
-        "basicinfo01": (context) => Basicinfo(
-              formType_id: 0,
-            ),
-        "basicinfo02": (context) => Basicinfo02(
-              status: 0,
-              formType_id: 0,
-            ),
-        "dash": (context) => Dashboard(),
-        "dashfirst": (context) => Dashboardfirst(),
-        "history": (context) => History(),
-        "profile": (context) => Profile(oauth: oauth,),
-        "chart": (context) => TestDash(
-              formType_id: 0,
-            ), // หน้าแรก Loginpage
-        // "/": (context) => TestDash(), // หน้าแรก Loginpage
+      // initialRoute: "/", // หน้าเริ่มต้น
+      // routes: {
+      //   "/": (context) => SplashScreen(), // เช็ค login
+      //   "login": (context) => Loginpage(oauth: oauth,), // หน้าแรก Loginpage
+      //   "home": (context) => Homepage(oauth: oauth,),
+      //   // "/": (context) => Homepage(),
+      //   "messagenoti": (context) => Messagenoti(
+      //         message: [],
+      //       ),
+      //   "question": (context) => Question(
+      //         status: 0,
+      //         formType_id: 0,
+      //         worry_id: [],
+      //       ),
+      //   "dataUser": (context) => Datauser(
+      //         email: '', oauth: oauth,
+      //       ),
+      //   "basicinfo01": (context) => Basicinfo(
+      //         formType_id: 0,
+      //       ),
+      //   "basicinfo02": (context) => Basicinfo02(
+      //         status: 0,
+      //         formType_id: 0,
+      //       ),
+      //   "dash": (context) => Dashboard(),
+      //   "dashfirst": (context) => Dashboardfirst(),
+      //   "history": (context) => History(),
+      //   "profile": (context) => Profile(oauth: oauth,),
+      //   "chart": (context) => TestDash(
+      //         formType_id: 0,
+      //       ), // หน้าแรก Loginpage
+      //   // "/": (context) => TestDash(), // หน้าแรก Loginpage
 
-        // "modify": (context) => Modifyprofile(email: ''),
-        // "/": (context) => Modifyprofile(email: ''),
+      //   // "modify": (context) => Modifyprofile(email: ''),
+      //   // "/": (context) => Modifyprofile(email: ''),
 
-        // "test": (context) => Test(), // ปิดไว้หากไม่ได้ใช้งาน
-      },
+      //   // "test": (context) => Test(), // ปิดไว้หากไม่ได้ใช้งาน
+      // },
+      home: MyLineChartWidget(),
     );
   }
 }
