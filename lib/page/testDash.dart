@@ -23,7 +23,9 @@ class _TestDashState extends State<TestDash> {
   List<Map<String, dynamic>> chartData = [];
   List<FlSpot> chartLineData = [];
   List<String> stressLevels = [];
+  Map<int, Map<String, double>> stressLevelMap = {};
   Set<double> shownYValues = {}; // เก็บค่า Y ที่แสดงไปแล้ว
+
   Future<void> fetchChartData() async {
     final pref = await SharedPreferences.getInstance();
     try {
@@ -38,14 +40,32 @@ class _TestDashState extends State<TestDash> {
         final Map<String, dynamic> responseData2 = jsonDecode(response02.body);
         setState(() {
           chartData = List<Map<String, dynamic>>.from(responseData['res']);
+
+          // var titles = responseData2['res'][0]['title'];
+          // stressLevels = List<String>.from(titles.map((title) => title['t']));
+
+          // var data = responseData2['res'][0]['data'];
+
+          // chartLineData = data.map<FlSpot>((entry) {
+          //   DateTime dateTime = DateTime.parse(entry['x']);
+          //   double yValue = _getStressLevelValue(entry['y']);
+          //   return FlSpot(dateTime.millisecondsSinceEpoch.toDouble(), yValue);
+          // }).toList();
           var titles = responseData2['res'][0]['title'];
-          stressLevels = List<String>.from(titles.map((title) => title['t']));
+          // stressLevels = List<String>.from(titles.map((title) => title['t']));
+
+          // อัปเดต stressLevelMap ให้รองรับ formType_id ที่แตกต่างกัน
+          stressLevelMap[widget.formType_id] = {
+            for (var title in titles)
+              title['t']['nameInterpre']: title['t']['min_Interpre'].toDouble()
+          };
 
           var data = responseData2['res'][0]['data'];
 
           chartLineData = data.map<FlSpot>((entry) {
             DateTime dateTime = DateTime.parse(entry['x']);
-            double yValue = _getStressLevelValue(entry['y']);
+            double yValue =
+                _getStressLevelValue(entry['y'], widget.formType_id);
             return FlSpot(dateTime.millisecondsSinceEpoch.toDouble(), yValue);
           }).toList();
         });
@@ -115,14 +135,33 @@ class _TestDashState extends State<TestDash> {
     ),
   };
 
-  double _getStressLevelValue(String stressLevel) {
-    int index = stressLevels.indexOf(stressLevel);
-    if (index != -1) {
-      return (index + 1).toDouble();
-    } else {
-      return 0.0;
-    }
+  double _getStressLevelValue(String stressLevel, int formTypeId) {
+    return stressLevelMap[formTypeId]?[stressLevel] ?? 0.0;
   }
+
+  String _getStressLevelName(int minInterpre, int formTypeId) {
+    var levels = stressLevelMap[formTypeId];
+    print('levels --------> $levels');
+
+    if (levels != null) {
+      print('levels --------> $levels');
+      for (var entry in levels.entries) {
+        // เปรียบเทียบค่าที่มีความยืดหยุ่น
+        if ((entry.value - minInterpre.toDouble()).abs() < 0.01) {
+          return entry.key;
+        }
+      }
+    }
+    return "ไม่ทราบค่า";
+  }
+  // double _getStressLevelValue(String stressLevel) {
+  //   int index = stressLevels.indexOf(stressLevel);
+  //   if (index != -1) {
+  //     return (index + 1).toDouble();
+  //   } else {
+  //     return 0.0;
+  //   }
+  // }
 
   @override
   void initState() {
@@ -240,17 +279,17 @@ class _TestDashState extends State<TestDash> {
                           titlesData: FlTitlesData(
                             leftTitles: AxisTitles(
                               sideTitles: SideTitles(
-                                showTitles: false,
-                                reservedSize: 40,
+                                showTitles: true,
                                 interval: 1,
                                 getTitlesWidget: (value, meta) {
-                                  // Here we display the stress level based on the y value (stress level titles)
                                   int index = value.toInt();
                                   if (index >= 0 &&
                                       index < stressLevels.length) {
                                     return Text(
-                                      stressLevels[
-                                          index], // Showing title from the dynamic list
+                                      _getStressLevelName(
+                                          value.toInt(),
+                                          widget
+                                              .formType_id), // Showing title from the dynamic list
                                       style: GoogleFonts.prompt(
                                         textStyle: TextStyle(
                                           color: Colors.white,
@@ -299,39 +338,34 @@ class _TestDashState extends State<TestDash> {
                                 color: Colors.white.withOpacity(0.5), width: 1),
                           ),
                           lineTouchData: LineTouchData(
-                            handleBuiltInTouches:
-                                true, // ให้ Flutter จัดการการแตะ
+                            handleBuiltInTouches: true,
                             touchTooltipData: LineTouchTooltipData(
-                              // tooltipBgColor: Colors.black54, // สีพื้นหลังของ tooltip
                               getTooltipColor: (LineBarSpot spot) {
                                 if (spot.y >= 3) {
-                                  return Colors
-                                      .redAccent; // ถ้าค่า y >= 3 ให้ใช้สีแดง
+                                  return Colors.redAccent;
                                 } else if (spot.y >= 2) {
-                                  return Colors
-                                      .orangeAccent; // ถ้าค่า y >= 2 ให้ใช้สีส้ม
+                                  return Colors.orangeAccent;
                                 }
-                                return Colors
-                                    .greenAccent; // ค่าน้อยกว่า 2 ให้ใช้สีเขียว
+                                return Colors.greenAccent;
                               },
-                              tooltipMargin: 10, // กำหนดระยะห่างของ Tooltip
-                              tooltipRoundedRadius:
-                                  8, // กำหนดมุมโค้งของ Tooltip
+                              tooltipMargin: 10,
+                              tooltipRoundedRadius: 8,
                               getTooltipItems: (touchedSpots) {
                                 return touchedSpots
                                     .map((LineBarSpot touchedSpot) {
-                                  double yValue = touchedSpot.y;
-                                  int index = yValue.toInt() -
-                                      1; // หาตำแหน่งใน stressLevels
-                                  String label = (index >= 0 &&
-                                          index < stressLevels.length)
-                                      ? stressLevels[index]
-                                      : "ไม่ทราบค่า"; // ใช้ข้อความที่ตรงกับระดับความเครียด
+                                  int yValue = touchedSpot.y.toInt();
+                                  String label = (yValue >= 0 &&
+                                          yValue < stressLevels.length)
+                                      ? _getStressLevelName(
+                                          yValue, widget.formType_id)
+                                      : "ไม่ทราบค่า";
+
                                   return LineTooltipItem(
                                     label,
                                     GoogleFonts.prompt(
-                                        textStyle: TextStyle(
-                                            color: Colors.white, fontSize: 14)),
+                                      textStyle: TextStyle(
+                                          color: Colors.white, fontSize: 14),
+                                    ),
                                   );
                                 }).toList();
                               },
@@ -340,13 +374,12 @@ class _TestDashState extends State<TestDash> {
                           lineBarsData: [
                             LineChartBarData(
                               spots: chartLineData,
-                              isCurved: false, // เส้นโค้ง
+                              isCurved: false,
                               color: Colors.white,
                               barWidth: 3,
                               belowBarData: BarAreaData(
                                 show: true,
-                                color: Colors.white
-                                    .withOpacity(0.1), // เงาด้านล่างเส้น
+                                color: Colors.white.withOpacity(0.1),
                               ),
                               dotData: FlDotData(
                                 show: true,
