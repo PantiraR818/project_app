@@ -3,6 +3,9 @@ import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconly/iconly.dart';
+import 'package:url_launcher/link.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class Counseling extends StatefulWidget {
   const Counseling({super.key});
@@ -143,6 +146,51 @@ class _CounselingState extends State<Counseling> {
                                 width: constraints.maxHeight * 0.4,
                               ),
                               const SizedBox(width: 20),
+                             
+                              Center(
+                                  child: Link(
+                                      uri: Uri.parse(
+                                          "https://www.facebook.com/profile.php?id=100063935491321"),
+                                      target: LinkTarget.blank,
+                                      builder: (context, followLink) =>
+                                          TextButton(
+                                            onPressed: followLink,
+                                            style: TextButton.styleFrom(
+                                              foregroundColor:
+                                                  Colors.white, // สีตัวอักษร
+                                              backgroundColor: Colors
+                                                  .indigo, // สีพื้นหลังปุ่ม
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 20, vertical: 12),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(18),
+                                              ),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment
+                                                  .center, // จัดกลางในแนวตั้ง
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment
+                                                      .center, // จัดกลางในแนวนอน
+                                              children: [
+                                                Icon(FontAwesomeIcons.link,
+                                                    color: Colors.white,
+                                                    size: 26),
+                                                SizedBox(height: 8),
+                                                Text(
+                                                  "ติดต่อเรา & พูดคุยผ่าน Facebook",
+                                                  textAlign: TextAlign.center,
+                                                  style: GoogleFonts.prompt(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors
+                                                        .white, // เพิ่มสีให้ตัวอักษรเป็นสีขาว
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          )))
                             ],
                           ),
                         ),

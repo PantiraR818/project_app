@@ -14,7 +14,7 @@ import 'package:project_app/service/form_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Homepagecontent extends StatefulWidget {
-   final AadOAuth oauth;
+  final AadOAuth oauth;
   const Homepagecontent({super.key, required this.oauth});
 
   @override
@@ -198,7 +198,9 @@ class _HomepagecontentState extends State<Homepagecontent> {
 
           return ListView(
             children: [
-              HomeAppBar(oauth: widget.oauth,),
+              HomeAppBar(
+                oauth: widget.oauth,
+              ),
               Container(
                 padding: EdgeInsets.only(top: 5),
                 color: Colors.white,
@@ -256,7 +258,7 @@ class _HomepagecontentState extends State<Homepagecontent> {
   }
 }
 
-class NotificationIcon extends StatelessWidget {
+class NotificationIcon extends StatefulWidget  {
   const NotificationIcon({Key? key}) : super(key: key);
 
   Future<List<dynamic>> fetchNoti() async {
@@ -316,8 +318,8 @@ class NotificationIcon extends StatelessWidget {
         final count = dataNoti.length;
 
         return GestureDetector(
-          onTap: () {
-            Navigator.push(
+          onTap: () async {
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => Messagenoti(
@@ -325,6 +327,10 @@ class NotificationIcon extends StatelessWidget {
                 ),
               ),
             );
+            // รีเซ็ต count เมื่อกลับมาจากหน้า Messagenoti
+            setState(() {
+              count = 0;
+            });
           },
           child: badges.Badge(
             badgeContent: Text(
