@@ -258,7 +258,7 @@ class _HomepagecontentState extends State<Homepagecontent> {
   }
 }
 
-class NotificationIcon extends StatefulWidget  {
+class NotificationIcon extends StatelessWidget {
   const NotificationIcon({Key? key}) : super(key: key);
 
   Future<List<dynamic>> fetchNoti() async {
@@ -315,11 +315,17 @@ class NotificationIcon extends StatefulWidget  {
         }
 
         final dataNoti = snapshot.data ?? [];
-        final count = dataNoti.length;
+        print("dataNoti----------------------------->>${dataNoti}");
+        // กรองเฉพาะแถวที่ readed == 2
+        final filteredData =
+            dataNoti.where((item) => item['readed'] == 2).toList();
+
+// นับจำนวนข้อมูลที่ผ่านเงื่อนไข
+        final count = filteredData.length;
 
         return GestureDetector(
-          onTap: () async {
-            await Navigator.push(
+          onTap: () {
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => Messagenoti(
@@ -327,10 +333,6 @@ class NotificationIcon extends StatefulWidget  {
                 ),
               ),
             );
-            // รีเซ็ต count เมื่อกลับมาจากหน้า Messagenoti
-            setState(() {
-              count = 0;
-            });
           },
           child: badges.Badge(
             badgeContent: Text(

@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: "/", // หน้าเริ่มต้น
       routes: {
-        "/": (context) => SplashScreen(), // เช็ค login 
+        "/": (context) => SplashScreen(), // เช็ค login
         "login": (context) => Loginpage(oauth: oauth,), // หน้าแรก Loginpage
         "home": (context) => Homepage(oauth: oauth,),
         // "/": (context) => Homepage(),
@@ -84,6 +84,7 @@ class MyApp extends StatelessWidget {
 
         // "test": (context) => Test(), // ปิดไว้หากไม่ได้ใช้งาน
       },
+      // home: ,
     );
   }
 }

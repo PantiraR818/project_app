@@ -5,6 +5,7 @@ import 'package:iconly/iconly.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Messagenoti extends StatefulWidget {
   final List<dynamic> message;
@@ -24,41 +25,69 @@ class _MessagenotiState extends State<Messagenoti> {
   void initState() {
     super.initState();
     Future.microtask(() => checkForStressNotifications());
+    _updateReaded();
   }
 
-void checkForStressNotifications() {
-  stressNotifications.clear();
+  Future<void> _updateReaded() async {
+    final pref = await SharedPreferences.getInstance();
+    final accId = pref.getInt('id');
+    try {
+      final response = await http.put(
+          Uri.parse('${dotenv.env['URL_SERVER']}/save_data/updateRead/$accId'));
 
-  for (var item in widget.message) {
-    String interpreLevel = (item['interpre_level'] ?? '').toString().trim();
-    String createdAtString = item['createdAt'] ?? ''; // ดึงค่าที่สร้าง
-
-    if (interpreLevel == 'เครียดมาก' ||
-        interpreLevel == 'เครียดมากที่สุด' ||
-        interpreLevel == 'ซึมเศร้าระดับปานกลาง' ||
-        interpreLevel == 'ซึมเศร้าระดับรุนแรง' ||
-        interpreLevel == 'พลังสุขภาพจิตระดับต่ำ') {
-      
-      // แปลง createdAt เป็น DateTime
-      DateTime createdAt = DateTime.tryParse(createdAtString) ?? DateTime.now();
-      DateTime nextReminderDate = createdAt.add(Duration(days: 7)); // บวก 7 วันจาก createdAt
-
-      String formattedDate = DateFormat('dd/MM/yyyy').format(nextReminderDate);
-
-      stressNotifications.add({
-        'title': 'แจ้งเตือนการประเมินซ้ำ',
-        'message01': '$interpreLevel',
-        'message02': 'กรุณาทำแบบประเมินซ้ำในวันที่ $formattedDate',
-        'date': formattedDate,
-      });
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+        if (result['message'] == 'Update Success') {
+          print(result['message']);
+        } else if (result['message'] == 'Nothing to Update') {
+          print(result['message']);
+        }
+      } else {
+         print('error');
+      }
+    } catch (error) {
+      print('เกิดข้อผิดพลาด: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('เกิดข้อผิดพลาด: $error')),
+      );
     }
   }
 
-  setState(() {
-    allNotifications = [...stressNotifications];
-    isLoading = false;
-  });
-}
+  void checkForStressNotifications() {
+    stressNotifications.clear();
+
+    for (var item in widget.message) {
+      String interpreLevel = (item['interpre_level'] ?? '').toString().trim();
+      String createdAtString = item['createdAt'] ?? ''; // ดึงค่าที่สร้าง
+
+      if (interpreLevel == 'เครียดมาก' ||
+          interpreLevel == 'เครียดมากที่สุด' ||
+          interpreLevel == 'ซึมเศร้าระดับปานกลาง' ||
+          interpreLevel == 'ซึมเศร้าระดับรุนแรง' ||
+          interpreLevel == 'พลังสุขภาพจิตระดับต่ำ') {
+        // แปลง createdAt เป็น DateTime
+        DateTime createdAt =
+            DateTime.tryParse(createdAtString) ?? DateTime.now();
+        DateTime nextReminderDate =
+            createdAt.add(Duration(days: 7)); // บวก 7 วันจาก createdAt
+
+        String formattedDate =
+            DateFormat('dd/MM/yyyy').format(nextReminderDate);
+
+        stressNotifications.add({
+          'title': 'แจ้งเตือนการประเมินซ้ำ',
+          'message01': '$interpreLevel',
+          'message02': 'กรุณาทำแบบประเมินซ้ำในวันที่ $formattedDate',
+          'date': formattedDate,
+        });
+      }
+    }
+
+    setState(() {
+      allNotifications = [...stressNotifications];
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,13 +161,17 @@ void checkForStressNotifications() {
                                   item["message01"]?.toString() ??
                                       "ไม่มีข้อความ",
                                   style: GoogleFonts.prompt(
-                                      fontWeight: FontWeight.w500,fontSize: 16, color: Color(0xffF72C5B)),
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                      color: Color(0xffF72C5B)),
                                 ),
                                 Text(
                                   item["message02"]?.toString() ??
                                       "ไม่มีข้อความ",
                                   style: GoogleFonts.prompt(
-                                      fontWeight: FontWeight.w400,fontSize: 15, color: Colors.grey[800]),
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 15,
+                                      color: Colors.grey[800]),
                                 ),
                               ],
                             ),
