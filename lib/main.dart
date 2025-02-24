@@ -52,9 +52,7 @@ class MyApp extends StatelessWidget {
         "login": (context) => Loginpage(oauth: oauth,), // หน้าแรก Loginpage
         "home": (context) => Homepage(oauth: oauth,),
         // "/": (context) => Homepage(),
-        "messagenoti": (context) => Messagenoti(
-              message: [],
-            ),
+        "messagenoti": (context) => Messagenoti(message: {},),
         "question": (context) => Question(
               status: 0,
               formType_id: 0,

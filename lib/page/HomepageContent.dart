@@ -261,29 +261,52 @@ class _HomepagecontentState extends State<Homepagecontent> {
 class NotificationIcon extends StatelessWidget {
   const NotificationIcon({Key? key}) : super(key: key);
 
-  Future<List<dynamic>> fetchNoti() async {
-    final pref = await SharedPreferences.getInstance();
-    final userId = pref.getInt("id");
+  Future<Map<String, dynamic>> fetchNoti() async {
+  final pref = await SharedPreferences.getInstance();
+  final userId = pref.getInt("id");
 
-    if (userId == null) {
-      return [];
-    }
-
-    final response = await http.get(
-      Uri.parse('${dotenv.env['URL_SERVER']}/save_data/getNoti/$userId'),
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return data['res'] ?? [];
-    } else {
-      throw Exception('Failed to load notifications');
-    }
+  if (userId == null) {
+    return {'meeting': [], 'saveData': []};
   }
+
+  final response = await http.get(
+    Uri.parse('${dotenv.env['URL_SERVER']}/save_data/getNoti/$userId'),
+  );
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    final res = data['res'] ?? {};
+
+    // แยกข้อมูลออกเป็น meeting และ saveData
+    List<dynamic> meetings = res['meeting'] ?? [];
+    List<dynamic> saveData = res['saveData'] ?? [];
+
+    // 🔄 เรียงลำดับตาม createdAt จากมากไปน้อย
+    meetings.sort((a, b) {
+      DateTime dateA = DateTime.tryParse(a['createdAt'] ?? '') ?? DateTime.now();
+      DateTime dateB = DateTime.tryParse(b['createdAt'] ?? '') ?? DateTime.now();
+      return dateB.compareTo(dateA); // เรียงจากใหม่ไปเก่า
+    });
+
+    saveData.sort((a, b) {
+      DateTime dateA = DateTime.tryParse(a['createdAt'] ?? '') ?? DateTime.now();
+      DateTime dateB = DateTime.tryParse(b['createdAt'] ?? '') ?? DateTime.now();
+      return dateB.compareTo(dateA); // เรียงจากใหม่ไปเก่า
+    });
+
+    return {
+      'meeting': meetings,
+      'saveData': saveData,
+    };
+  } else {
+    throw Exception('Failed to load notifications');
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<dynamic>>(
+    return FutureBuilder<Map<String, dynamic>>(
       future: fetchNoti(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -314,14 +337,20 @@ class NotificationIcon extends StatelessWidget {
           );
         }
 
-        final dataNoti = snapshot.data ?? [];
-        print("dataNoti----------------------------->>${dataNoti}");
-        // กรองเฉพาะแถวที่ readed == 2
-        final filteredData =
-            dataNoti.where((item) => item['readed'] == 2).toList();
+        // ดึงข้อมูลจาก snapshot.data
+        final dataNoti = snapshot.data ?? {'meeting': [], 'saveData': []};
+        final meetingNoti = dataNoti['meeting'] ?? [];
+        final saveDataNoti = dataNoti['saveData'] ?? [];
 
-// นับจำนวนข้อมูลที่ผ่านเงื่อนไข
-        final count = filteredData.length;
+        final filteredMeeting =
+            meetingNoti.where((item) => item['readed'] == 1).toList();
+
+        // กรองเฉพาะแถวที่ readed == 0 จาก saveData
+        final filteredSaveData =
+            saveDataNoti.where((item) => item['readed'] == 2).toList();
+
+        // รวมจำนวนทั้งหมด
+        final count = filteredMeeting.length + filteredSaveData.length;
 
         return GestureDetector(
           onTap: () {
@@ -329,7 +358,7 @@ class NotificationIcon extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => Messagenoti(
-                  message: dataNoti,
+                  message: dataNoti, // ส่งข้อมูลทั้งหมดไป
                 ),
               ),
             );

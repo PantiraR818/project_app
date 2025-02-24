@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Messagenoti extends StatefulWidget {
-  final List<dynamic> message;
+  final Map<String, dynamic> message;
 
   const Messagenoti({super.key, required this.message});
 
@@ -18,6 +18,7 @@ class Messagenoti extends StatefulWidget {
 
 class _MessagenotiState extends State<Messagenoti> {
   List<Map<String, dynamic>> stressNotifications = [];
+  List<Map<String, dynamic>> meetingNotifications = [];
   List<Map<String, dynamic>> allNotifications = [];
   bool isLoading = true;
 
@@ -43,7 +44,7 @@ class _MessagenotiState extends State<Messagenoti> {
           print(result['message']);
         }
       } else {
-         print('error');
+        print('error');
       }
     } catch (error) {
       print('เกิดข้อผิดพลาด: $error');
@@ -52,42 +53,75 @@ class _MessagenotiState extends State<Messagenoti> {
       );
     }
   }
+void checkForStressNotifications() {
+  stressNotifications.clear();
+  meetingNotifications.clear();
 
-  void checkForStressNotifications() {
-    stressNotifications.clear();
+  if (widget.message is Map<String, dynamic>) {
+    // ดึงข้อมูล saveData และ meeting จาก message
+    final saveData = widget.message['saveData'] ?? [];
+    final meetings = widget.message['meeting'] ?? [];
 
-    for (var item in widget.message) {
+    // ตรวจสอบการแจ้งเตือนจาก saveData (แบบประเมินความเครียด)
+    for (var item in saveData) {
       String interpreLevel = (item['interpre_level'] ?? '').toString().trim();
-      String createdAtString = item['createdAt'] ?? ''; // ดึงค่าที่สร้าง
+      String createdAtString = item['createdAt'] ?? '';
 
       if (interpreLevel == 'เครียดมาก' ||
           interpreLevel == 'เครียดมากที่สุด' ||
           interpreLevel == 'ซึมเศร้าระดับปานกลาง' ||
           interpreLevel == 'ซึมเศร้าระดับรุนแรง' ||
           interpreLevel == 'พลังสุขภาพจิตระดับต่ำ') {
-        // แปลง createdAt เป็น DateTime
         DateTime createdAt =
             DateTime.tryParse(createdAtString) ?? DateTime.now();
-        DateTime nextReminderDate =
-            createdAt.add(Duration(days: 7)); // บวก 7 วันจาก createdAt
+        DateTime nextReminderDate = createdAt.add(Duration(days: 7));
 
         String formattedDate =
             DateFormat('dd/MM/yyyy').format(nextReminderDate);
 
         stressNotifications.add({
           'title': 'แจ้งเตือนการประเมินซ้ำ',
-          'message01': '$interpreLevel',
+          'message01': interpreLevel,
           'message02': 'กรุณาทำแบบประเมินซ้ำในวันที่ $formattedDate',
           'date': formattedDate,
+          'dateTime': createdAt, // ใช้ createdAt สำหรับการเรียง
         });
       }
     }
 
+    // ตรวจสอบการแจ้งเตือนจาก meeting (นัดหมายการปรึกษา)
+    for (var meeting in meetings) {
+      String description = (meeting['description'] ?? '').toString().trim();
+      String meetingDateStr = meeting['meeting_date'] ?? '';
+      String startTime = meeting['start_time'] ?? '';
+      String endTime = meeting['end_time'] ?? '';
+      String createdAtString = meeting['createdAt'] ?? '';
+
+      DateTime meetingDate =
+          DateTime.tryParse(meetingDateStr) ?? DateTime.now();
+      DateTime createdAt =
+          DateTime.tryParse(createdAtString) ?? DateTime.now();
+
+      String formattedDate = DateFormat('dd/MM/yyyy').format(meetingDate);
+
+      meetingNotifications.add({
+        'title': 'การนัดหมายปรึกษา',
+        'message01': description,
+        'message02': 'วันนัดหมาย: $formattedDate เวลา $startTime - $endTime',
+        'date': formattedDate,
+        'dateTime': createdAt, // ใช้ createdAt สำหรับการเรียง
+      });
+    }
+
+    // รวมและเรียงลำดับการแจ้งเตือนจาก createdAt มาก -> น้อย
     setState(() {
-      allNotifications = [...stressNotifications];
+      allNotifications = [...stressNotifications, ...meetingNotifications];
+      allNotifications.sort((a, b) =>
+          (b['dateTime'] as DateTime).compareTo(a['dateTime'] as DateTime)); // เรียงจากใหม่ไปเก่า
       isLoading = false;
     });
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +129,7 @@ class _MessagenotiState extends State<Messagenoti> {
       body: SafeArea(
         child: Column(
           children: [
+            // Header
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Row(
@@ -126,6 +161,8 @@ class _MessagenotiState extends State<Messagenoti> {
                 ],
               ),
             ),
+
+            // List Notifications
             Expanded(
               child: isLoading
                   ? Center(child: CircularProgressIndicator())
@@ -161,25 +198,29 @@ class _MessagenotiState extends State<Messagenoti> {
                                   item["message01"]?.toString() ??
                                       "ไม่มีข้อความ",
                                   style: GoogleFonts.prompt(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 16,
-                                      color: Color(0xffF72C5B)),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                    color: Color(0xffF72C5B),
+                                  ),
                                 ),
                                 Text(
                                   item["message02"]?.toString() ??
                                       "ไม่มีข้อความ",
                                   style: GoogleFonts.prompt(
-                                      fontWeight: FontWeight.w400,
-                                      fontSize: 15,
-                                      color: Colors.grey[800]),
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 15,
+                                    color: Colors.grey[800],
+                                  ),
                                 ),
                               ],
                             ),
-                            // trailing: Text(
-                            //   item["date"]?.toString() ?? "ไม่ระบุวันที่",
-                            //   style: GoogleFonts.prompt(
-                            //       fontSize: 12, color: Colors.grey[800]),
-                            // ),
+                            trailing: Text(
+                              item["date"]?.toString() ?? "ไม่ระบุวันที่",
+                              style: GoogleFonts.prompt(
+                                fontSize: 12,
+                                color: Colors.grey[800],
+                              ),
+                            ),
                           ),
                         );
                       },
