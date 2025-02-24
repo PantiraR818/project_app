@@ -136,7 +136,7 @@ class _DetailpageState extends State<Detailpage> {
                               height: 10,
                             ),
                             Text(
-                              data.formType.nameType,
+                              data.formTypeRelation.nameType,
                               style: GoogleFonts.prompt(
                                 fontSize: screenWidth * 0.043,
                                 fontWeight: FontWeight.w700,

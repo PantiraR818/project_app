@@ -10,7 +10,7 @@ class HistorySave {
   final int score;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final FormType formType;
+  final FormTypeRelation formTypeRelation;
   final List<ConcernFacMap> concernMatch;
 
   HistorySave({
@@ -23,29 +23,31 @@ class HistorySave {
     required this.score,
     required this.createdAt,
     required this.updatedAt,
-    required this.formType,
+    required this.formTypeRelation,
     required this.concernMatch,
   });
 
   // Factory method to create HistorySave from JSON
   factory HistorySave.fromJson(Map<String, dynamic> json) {
-    var list = json['concern_match'] as List;
-    List<ConcernFacMap> concernMatchList = list.map((i) => ConcernFacMap.fromJson(i)).toList();
+  var list = json['Conern_Fac_Map'] as List?; // Fix the key name
+  List<ConcernFacMap> concernMatchList =
+      list?.map((i) => ConcernFacMap.fromJson(i)).toList() ?? [];
 
-    return HistorySave(
-      id: json['id'],
-      formtypeId: json['formtype_id'],
-      accId: json['acc_id'],
-      interpreLevel: json['interpre_level'],
-      statusId: json['status_id'],
-      score: json['score'],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
-      formType: FormType.fromJson(json['formType']),
-      concernMatch: concernMatchList, 
-      interpre_color: json['interpre_color'],
-    );
-  }
+  return HistorySave(
+    id: json['id'],
+    formtypeId: json['formtype_id'],
+    accId: json['acc_id'],
+    interpreLevel: json['interpre_level'],
+    interpre_color: json['interpre_color'], // Add this field
+    statusId: json['status_id'],
+    score: json['score'],
+    createdAt: DateTime.parse(json['createdAt']),
+    updatedAt: DateTime.parse(json['updatedAt']),
+    formTypeRelation: FormTypeRelation.fromJson(json['formTypeRelation']),
+    concernMatch: concernMatchList,
+  );
+}
+
 
   // Convert HistorySave to JSON
   Map<String, dynamic> toJson() {
@@ -58,14 +60,14 @@ class HistorySave {
       'score': score,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
-      'formType': formType.toJson(),
+      'formType': formTypeRelation.toJson(),
       'concern_match': concernMatch.map((e) => e.toJson()).toList(),
     };
   }
 }
 
 
-class FormType {
+class FormTypeRelation {
   final int id;
   final String nameType;
   final String nameTypeEng;
@@ -75,7 +77,7 @@ class FormType {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  FormType({
+  FormTypeRelation({
     required this.id,
     required this.nameType,
     required this.nameTypeEng,
@@ -86,9 +88,9 @@ class FormType {
     required this.updatedAt,
   });
 
-  // Factory method for creating FormType from JSON
-  factory FormType.fromJson(Map<String, dynamic> json) {
-    return FormType(
+  // Factory method for creating formTypeRelation from JSON
+  factory FormTypeRelation.fromJson(Map<String, dynamic> json) {
+    return FormTypeRelation(
       id: json['id'],
       nameType: json['nameType'],
       nameTypeEng: json['nameTypeEng'],
@@ -100,7 +102,7 @@ class FormType {
     );
   }
 
-  // Method for converting FormType to JSON
+  // Method for converting formTypeRelation to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,

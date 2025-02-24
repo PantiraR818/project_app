@@ -59,7 +59,7 @@ class _HistoryState extends State<History> {
           }
           // Add the item to the group, ensuring no duplicate nameTypes in the same day
           if (!groupedMap[uniqueKey]!.any((existingItem) =>
-              existingItem.formType.nameType == item.formType.nameType)) {
+              existingItem.formTypeRelation.nameType == item.formTypeRelation.nameType)) {
             groupedMap[uniqueKey]!.add(item);
           }
         }
@@ -266,7 +266,7 @@ class _HistoryState extends State<History> {
                                             padding: const EdgeInsets.only(
                                                 bottom: 10),
                                             child: Text(
-                                              item.formType
+                                              item.formTypeRelation
                                                   .nameType, // Display the nameType for each item in the group
                                               textAlign: TextAlign
                                                   .left, // Align the text to the left
