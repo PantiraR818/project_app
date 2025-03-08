@@ -74,6 +74,7 @@ class MyApp extends StatelessWidget {
         "profile": (context) => Profile(oauth: oauth,),
         "chart": (context) => TestDash(
               formType_id: 0,
+              formType_name: '',
             ), // หน้าแรก Loginpage
         // "/": (context) => TestDash(), // หน้าแรก Loginpage
 

@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:project_app/page/DataUser.dart';
+import 'package:project_app/service/Auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aad_oauth/aad_oauth.dart';
 
@@ -66,12 +67,17 @@ class _LoginpageState extends State<Loginpage> {
         Uri.parse('https://graph.microsoft.com/v1.0/me'),
         headers: {'Authorization': 'Bearer $_accessToken'},
       );
+      print(
+          'userInfoResponse ----------------> ${userInfoResponse.statusCode}');
+      print(
+          'userInfoResponse ----------------> ${userGraphResponse.statusCode}');
+      //&& userGraphResponse.statusCode == 200
 
       if (userInfoResponse.statusCode == 200 &&
           userGraphResponse.statusCode == 200) {
         final userInfo = json.decode(utf8.decode(userInfoResponse.bodyBytes));
         final userData = json.decode(utf8.decode(userGraphResponse.bodyBytes));
-
+        print('userInfo --------------------------------> $userInfo');
         // รวมข้อมูลจากทั้งสอง API
         final email = userInfo['email'] ?? userData['mail'] ?? '';
         final id = email.contains('@') ? email.split('@')[0] : null;
@@ -113,12 +119,74 @@ class _LoginpageState extends State<Loginpage> {
 
         print("User Data latest: $_userData");
       } else {
+        _showLoginErrorAlert();
         print(
             "Error fetching user info: ${userInfoResponse.statusCode}, ${userGraphResponse.statusCode}");
       }
     } catch (e) {
       print("Fetch User Data Error: $e");
     }
+  }
+
+  void _showLoginErrorAlert() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // ป้องกันการปิด Dialog โดยคลิกนอกกรอบ
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20), // ขอบโค้งมน
+          ),
+          backgroundColor: Colors.white,
+          title: Column(
+            children: [
+              Icon(Icons.error_outline, color: Colors.redAccent, size: 50),
+              SizedBox(height: 10),
+              Text(
+                "เข้าสู่ระบบล้มเหลว",
+                style: GoogleFonts.prompt(
+                    textStyle: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                )),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          content: Text(
+            "กรุณาเข้าสู่ระบบด้วยบัญชี\nมหาวิทยาลัยเทคโนโลยีราชมงคลธัญบุรี",
+            style: GoogleFonts.prompt(
+                textStyle: TextStyle(fontSize: 16, color: Colors.black54)),
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: ElevatedButton(
+                onPressed: () {
+                  logout(widget.oauth);
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                ),
+                child: Text(
+                  "ลองอีกครั้ง",
+                  style: GoogleFonts.prompt(
+                      textStyle: TextStyle(fontSize: 16, color: Colors.white)),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -225,6 +293,17 @@ class _LoginpageState extends State<Loginpage> {
                       ),
                     ),
                   ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Text(
+                    '(อีเมล Microsoft จาก RMUTT)',
+                    style: GoogleFonts.prompt(
+                        textStyle: TextStyle(
+                            fontSize: subtitleFontSize,
+                            // fontWeight: FontWeight.bold,
+                            color: (Colors.black38),))
+                  )
                 ],
               ),
             ),
@@ -234,23 +313,23 @@ class _LoginpageState extends State<Loginpage> {
     );
   }
 
-  Future<dynamic> signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      final GoogleSignInAuthentication? googleAuth =
-          await googleUser?.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      );
-      final userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-      return userCredential;
-    } catch (e) {
-      print('Error during Google sign-in: $e');
-      return null;
-    }
-  }
+  // Future<dynamic> signInWithGoogle() async {
+  //   try {
+  //     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  //     final GoogleSignInAuthentication? googleAuth =
+  //         await googleUser?.authentication;
+  //     final credential = GoogleAuthProvider.credential(
+  //       accessToken: googleAuth?.accessToken,
+  //       idToken: googleAuth?.idToken,
+  //     );
+  //     final userCredential =
+  //         await FirebaseAuth.instance.signInWithCredential(credential);
+  //     return userCredential;
+  //   } catch (e) {
+  //     print('Error during Google sign-in: $e');
+  //     return null;
+  //   }
+  // }
 
   Future<void> saveInitialData(String mail, String displayName, String id,
       String department, String mobilePhone) async {
@@ -271,10 +350,12 @@ class _LoginpageState extends State<Loginpage> {
           'phone': mobilePhone,
         }),
       );
+      print('response.statusCode ${response.statusCode}');
       if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
         final data = json.decode(response.body);
         final user = json.decode(response.body)['res'];
+        print('data[] .statusCode ${data['msg']}');
 
         if (data['msg'] == 'create success') {
           print('Initial data saved successfully.');
@@ -301,7 +382,7 @@ class _LoginpageState extends State<Loginpage> {
           await prefs.setString('phone', user['phone']);
           await prefs.setString('createdAt', user['createdAt']);
           Navigator.pushNamed(context, "home");
-        } 
+        }
       } else {
         print('Failed to save initial data. Server error.');
       }

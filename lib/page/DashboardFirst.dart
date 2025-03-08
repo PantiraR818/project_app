@@ -138,6 +138,7 @@ class _DashboardfirstState extends State<Dashboardfirst> {
                               MaterialPageRoute(
                                 builder: (context) => TestDash(
                                   formType_id: formTypes[i].id, 
+                                  formType_name: formTypes[i].nameType,
                                 ),
                               ),
                             );

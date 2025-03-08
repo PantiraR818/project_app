@@ -224,48 +224,36 @@ class _ModifyprofileState extends State<Modifyprofile> {
                             ),
                           ),
                           SizedBox(height: screenHeight * 0.02),
-                          _buildTextField(
-                            widget.name,
-                            _nameController,
-                            (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'กรุณากรอกชื่อ';
-                              }
-                              return null;
-                            },
-                          ),
-                          SizedBox(height: screenHeight * 0.02),
-                          Text(
-                            "รหัสนักศึกษาที่อยากให้เราแก้ไข",
-                            style: GoogleFonts.prompt(
-                              textStyle: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xffFF6893),
-                              ),
-                            ),
-                          ),
-                          Text(
-                            "---  กรณีไม่มีให้ ขีด -  ---",
-                            style: GoogleFonts.prompt(
-                              textStyle: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF756EB9),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: screenHeight * 0.02),
-                          _buildTextField(
-                            widget.idStudent,
-                            _studentIdController,
-                            (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'กรุณากรอกรหัสนักศึกษา';
-                              }
-                              return null;
-                            },
-                          ),
+                          _buildTextField(widget.name, _nameController,
+                              (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'กรุณากรอกชื่อ';
+                            }
+                            return null;
+                          }, false),
+                          // SizedBox(height: screenHeight * 0.02),
+                          // Text(
+                          //   "รหัสนักศึกษาที่อยากให้เราแก้ไข",
+                          //   style: GoogleFonts.prompt(
+                          //     textStyle: TextStyle(
+                          //       fontSize: 15,
+                          //       fontWeight: FontWeight.bold,
+                          //       color: Color(0xffFF6893),
+                          //     ),
+                          //   ),
+                          // ),
+                          // SizedBox(height: screenHeight * 0.02),
+                          // _buildTextField(
+                          //   widget.idStudent,
+                          //   _studentIdController,
+                          //   (value) {
+                          //     if (value == null || value.isEmpty) {
+                          //       return 'กรุณากรอกรหัสนักศึกษา';
+                          //     }
+                          //     return null;
+                          //   },
+                          //   true
+                          // ),
                           SizedBox(height: screenHeight * 0.02),
                           Text(
                             "เบอร์ที่อยากให้เราแก้ไข",
@@ -278,16 +266,13 @@ class _ModifyprofileState extends State<Modifyprofile> {
                             ),
                           ),
                           SizedBox(height: screenHeight * 0.02),
-                          _buildTextField(
-                            widget.phone,
-                            _phoneController,
-                            (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'กรุณากรอกเบอร์ติดต่อ';
-                              }
-                              return null;
-                            },
-                          ),
+                          _buildTextField(widget.phone, _phoneController,
+                              (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'กรุณากรอกเบอร์ติดต่อ';
+                            }
+                            return null;
+                          }, false),
                           SizedBox(height: screenHeight * 0.02),
                           _buildDatePicker(),
                           SizedBox(height: screenHeight * 0.02),
@@ -402,11 +387,8 @@ class _ModifyprofileState extends State<Modifyprofile> {
     );
   }
 
-  Widget _buildTextField(
-    String hintText,
-    TextEditingController controller,
-    String? Function(String?)? validator,
-  ) {
+  Widget _buildTextField(String hintText, TextEditingController controller,
+      String? Function(String?)? validator, bool edit) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20), // กรอบมน
@@ -422,6 +404,12 @@ class _ModifyprofileState extends State<Modifyprofile> {
       child: TextFormField(
         controller: controller,
         validator: validator,
+        readOnly: edit,
+        style: GoogleFonts.prompt(
+          fontSize: 14,
+          // fontWeight: FontWeight.w500,
+          color: Colors.black87, // สีข้อความ
+        ),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: GoogleFonts.prompt(

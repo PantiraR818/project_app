@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:project_app/lineC.dart';
+import 'package:project_app/service/form_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:http/http.dart' as http;
@@ -12,7 +13,9 @@ import 'package:fluentui_emoji_icon/fluentui_emoji_icon.dart';
 
 class TestDash extends StatefulWidget {
   final int formType_id;
-  const TestDash({super.key, required this.formType_id});
+  final String formType_name;
+  const TestDash(
+      {super.key, required this.formType_id, required this.formType_name});
 
   @override
   _TestDashState createState() => _TestDashState();
@@ -66,21 +69,41 @@ class _TestDashState extends State<TestDash> {
       stressMapping[t['nameInterpre']] = t['min_Interpre'];
     }
 
-    // กำหนด maxY จาก mapping (ในที่นี้คือค่าสูงสุด)
-    maxY = stressMapping.values.reduce(max).toDouble();
-
     // คำนวณค่าต่ำสุดและสูงสุดจากข้อมูลที่ดึงมา
-    double minDataY = stressMapping.values.reduce(min).toDouble();
-    double maxDataY = stressMapping.values.reduce(max).toDouble();
+    double minDataY = stressMapping.values.isNotEmpty
+        ? stressMapping.values.reduce(min).toDouble()
+        : 0.0;
+    double maxDataY = stressMapping.values.isNotEmpty
+        ? stressMapping.values.reduce(max).toDouble()
+        : 0.0;
 
-    // เพิ่มหรือลดช่วงประมาณ 4 หน่วยจากค่าต่ำสุดและสูงสุดของข้อมูล
+    // ถ้าค่าต่ำสุดและค่าสูงสุดเป็น 0 ให้กำหนดค่าเริ่มต้น
+    if (minDataY == 0.0 && maxDataY == 0.0) {
+      print("Warning: minDataY และ maxDataY เป็น 0 กำหนดค่าดีฟอลต์");
+      minDataY = 1.0;
+      maxDataY = 10.0; // ปรับค่าเริ่มต้นให้มีขนาดที่มองเห็น
+    }
+
+    // ปรับ minY และ maxY
     double padding = 4.0;
-    minY = (minDataY - padding).clamp(0.0, double.infinity); // ไม่ให้ต่ำกว่า 0
-    maxY = (maxDataY + padding)
-        .clamp(minY, double.infinity); // ไม่ให้สูงกว่า maxY ที่กำหนด
+    minY = (minDataY - padding).clamp(0.0, double.infinity);
+    maxY = (maxDataY + padding).clamp(minY, double.infinity);
 
+    print(
+        ' y ----------------------------------------------------------> $minY');
+    print(
+        ' x ----------------------------------------------------------> $maxY');
     // ดึงข้อมูล data
-    final dataList = apiResponse['res'][0]['data'] as List<dynamic>;
+    // ตรวจสอบ dataList ก่อนใช้งาน
+    final dataList = apiResponse['res'][0]['data'] as List<dynamic>? ?? [];
+    print('dataList ---------------------------->  $dataList');
+    if (dataList.isEmpty) {
+      print("Warning: dataList ไม่มีข้อมูล ใช้ค่าเริ่มต้นแทน");
+      dataList.add({
+        'x': DateTime.now().toIso8601String(), // ใช้เวลาปัจจุบัน
+        'y': 'ไม่มีข้อมูล' // ข้อมูลดีฟอลต์
+      });
+    }
 
     Map<String, Map<String, dynamic>> groupedData = {};
     for (var entry in dataList) {
@@ -110,6 +133,9 @@ class _TestDashState extends State<TestDash> {
           .toDouble();
       return FlSpot(xValue, yValue);
     }).toList();
+
+    print(
+        'chartLineData -----------------------------------------> $chartLineData');
   }
 
   final Map<String, FluentUiEmojiIcon> emojiMap = {
@@ -170,33 +196,6 @@ class _TestDashState extends State<TestDash> {
     ),
   };
 
-  // double _getStressLevelValue(String stressLevel, int formTypeId) {
-  //   return stressLevelMap[formTypeId]?[stressLevel] ?? 0.0;
-  // }
-
-  // String _getStressLevelName(int minInterpre, int formTypeId) {
-  //   var levels = stressLevelMap[formTypeId];
-  //   print('levels --------> $levels');
-
-  //   if (levels != null) {
-  //     print('levels --------> $levels');
-  //     for (var entry in levels.entries) {
-  //       // เปรียบเทียบค่าที่มีความยืดหยุ่น
-  //       if ((entry.value - minInterpre.toDouble()).abs() < 0.01) {
-  //         return entry.key;
-  //       }
-  //     }
-  //   }
-  //   return "ไม่ทราบค่า";
-  // }
-  // double _getStressLevelValue(String stressLevel) {
-  //   int index = stressLevels.indexOf(stressLevel);
-  //   if (index != -1) {
-  //     return (index + 1).toDouble();
-  //   } else {
-  //     return 0.0;
-  //   }
-  // }
   Future<void> fetchData() async {
     await fetchChartData(); // ดึงข้อมูลเมื่อ widget ถูกสร้าง
     processApiData();
@@ -272,6 +271,9 @@ class _TestDashState extends State<TestDash> {
     }
     double minX = chartLineData.first.x;
     double maxX = chartLineData.last.x;
+    // Map<String, int> label = stressMapping;
+
+    print('chartData ---------------------------------> $chartData');
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
@@ -304,7 +306,7 @@ class _TestDashState extends State<TestDash> {
             ),
             const SizedBox(height: 20),
             Expanded(
-                child: title == "ส่วนตัว"
+                child: title == "ส่วนตัว" && stressMapping.isNotEmpty
                     ? LineChart(
                         LineChartData(
                           gridData: FlGridData(
@@ -489,157 +491,189 @@ class _TestDashState extends State<TestDash> {
                           maxY: maxY,
                         ),
                       )
-                    : Column(
-                        children: [
-                          Flexible(
-                            fit: FlexFit
-                                .tight, // ทำให้ BarChart ใช้พื้นที่ที่เหลือ
-                            child: BarChart(
-                              BarChartData(
-                                minY: 0,
-                                maxY: (chartData.isNotEmpty
-                                    ? (chartData
-                                            .map((e) => e['y'] as int)
-                                            .toSet()
-                                            .reduce((a, b) => a > b ? a : b) +
-                                        2)
-                                    : 10),
-                                barGroups:
-                                    chartData.asMap().entries.map((entry) {
-                                  int index = entry.key;
-                                  var data = entry.value;
-                                  return BarChartGroupData(
-                                    x: index,
-                                    barRods: [
-                                      BarChartRodData(
-                                        toY: data['y'].toDouble(),
-                                        color: Colors.white,
-                                        width: 16,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
-                                borderData: FlBorderData(show: false),
-                                gridData: FlGridData(show: false),
-                                titlesData: FlTitlesData(
-                                  leftTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      interval: 1,
-                                      getTitlesWidget: (value, meta) => Text(
-                                        '${value.toInt()}',
-                                        style: GoogleFonts.prompt(
-                                          textStyle: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  bottomTitles: AxisTitles(
-                                    sideTitles: SideTitles(
-                                      showTitles: true,
-                                      reservedSize:
-                                          55, // ขยายพื้นที่ด้านล่าง emoji จะได้ไม่ติด bar
-                                      getTitlesWidget: (value, meta) {
-                                        int index = value.toInt();
-                                        if (index >= 0 &&
-                                            index < chartData.length) {
-                                          String text = chartData[index]['x'];
-                                          if (emojiMap.containsKey(text)) {
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top:
-                                                      10.0), // เพิ่มระยะให้ emoji
-                                              child: emojiMap[text]!,
-                                            );
-                                          } else {
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 10.0),
-                                              child: Icon(Icons.help_outline,
-                                                  color: Colors.white,
-                                                  size: 20),
-                                            );
-                                          }
-                                        }
-                                        return SizedBox.shrink();
-                                      },
-                                    ),
-                                  ),
-                                  topTitles: AxisTitles(
-                                      sideTitles:
-                                          SideTitles(showTitles: false)),
-                                  rightTitles: AxisTitles(
-                                      sideTitles:
-                                          SideTitles(showTitles: false)),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Column(
-                            // mainAxisSize:
-                            //     MainAxisSize.min, // ป้องกัน Column ยืดเกินไป
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                    : title == "ภาพรวมสุขภาพใจ"
+                        ? Column(
                             children: [
-                              Text(
-                                "คำอธิบายแสดงระดับสุขภาพใจ",
-                                style: GoogleFonts.prompt(
-                                  textStyle: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount: chartData.length,
-                                itemBuilder: (context, index) {
-                                  String text =
-                                      "${chartData[index]['x']}"; // ค่าจาก chartData
-
-                                  // ค้นหา Emoji จาก emojiMap โดยใช้ text ที่ได้
-                                  FluentUiEmojiIcon? emoji = emojiMap[text];
-
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 5), // ลดช่องไฟระหว่างข้อความ
-                                    child: Row(
-                                      children: [
-                                        if (emoji != null)
-                                          SizedBox(
-                                            width: 30, // กำหนดขนาดของ Emoji
-                                            height: 30, // กำหนดขนาดของ Emoji
-                                            child: emoji,
+                              Flexible(
+                                fit: FlexFit
+                                    .tight, // ทำให้ BarChart ใช้พื้นที่ที่เหลือ
+                                child: BarChart(
+                                  BarChartData(
+                                    minY: 0,
+                                    maxY: (chartData.isNotEmpty
+                                        ? (chartData
+                                                .map((e) => e['y'] as int)
+                                                .toSet()
+                                                .reduce(
+                                                    (a, b) => a > b ? a : b) +
+                                            2)
+                                        : 10),
+                                    barGroups:
+                                        chartData.asMap().entries.map((entry) {
+                                      int index = entry.key;
+                                      var data = entry.value;
+                                      return BarChartGroupData(
+                                        x: index,
+                                        barRods: [
+                                          BarChartRodData(
+                                            toY: data['y'].toDouble(),
+                                            color: Colors.white,
+                                            width: 16,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                           ),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        // แสดงข้อความหลัง Emoji
-                                        Text(
-                                          text,
-                                          style: GoogleFonts.prompt(
-                                            textStyle: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
+                                        ],
+                                      );
+                                    }).toList(),
+                                    borderData: FlBorderData(show: false),
+                                    gridData: FlGridData(show: false),
+                                    titlesData: FlTitlesData(
+                                      leftTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          interval: 1,
+                                          getTitlesWidget: (value, meta) =>
+                                              Text(
+                                            '${value.toInt()}',
+                                            style: GoogleFonts.prompt(
+                                              textStyle: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ],
+                                      ),
+                                      bottomTitles: AxisTitles(
+                                        sideTitles: SideTitles(
+                                          showTitles: true,
+                                          reservedSize:
+                                              55, // ขยายพื้นที่ด้านล่าง emoji จะได้ไม่ติด bar
+                                          getTitlesWidget: (value, meta) {
+                                            int index = value.toInt();
+                                            if (index >= 0 &&
+                                                index < chartData.length) {
+                                              String text =
+                                                  chartData[index]['x'];
+                                              if (emojiMap.containsKey(text)) {
+                                                return Padding(
+                                                  padding: const EdgeInsets
+                                                      .only(
+                                                      top:
+                                                          10.0), // เพิ่มระยะให้ emoji
+                                                  child: emojiMap[text]!,
+                                                );
+                                              } else {
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 10.0),
+                                                  child: Icon(
+                                                      Icons.help_outline,
+                                                      color: Colors.white,
+                                                      size: 20),
+                                                );
+                                              }
+                                            }
+                                            return SizedBox.shrink();
+                                          },
+                                        ),
+                                      ),
+                                      topTitles: AxisTitles(
+                                          sideTitles:
+                                              SideTitles(showTitles: false)),
+                                      rightTitles: AxisTitles(
+                                          sideTitles:
+                                              SideTitles(showTitles: false)),
                                     ),
-                                  );
-                                },
-                              )
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Column(
+                                // mainAxisSize:
+                                //     MainAxisSize.min, // ป้องกัน Column ยืดเกินไป
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "คำอธิบายแสดงระดับสุขภาพใจ",
+                                    style: GoogleFonts.prompt(
+                                      textStyle: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: chartData.length,
+                                    itemBuilder: (context, index) {
+                                      String text =
+                                          "${chartData[index]['x']}"; // ค่าจาก chartData
+
+                                      // ค้นหา Emoji จาก emojiMap โดยใช้ text ที่ได้
+                                      FluentUiEmojiIcon? emoji = emojiMap[text];
+
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 5), // ลดช่องไฟระหว่างข้อความ
+                                        child: Row(
+                                          children: [
+                                            if (emoji != null)
+                                              SizedBox(
+                                                width: 30, // กำหนดขนาดของ Emoji
+                                                height:
+                                                    30, // กำหนดขนาดของ Emoji
+                                                child: emoji,
+                                              ),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            // แสดงข้อความหลัง Emoji
+                                            Text(
+                                              text,
+                                              style: GoogleFonts.prompt(
+                                                textStyle: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  )
+                                ],
+                              ),
                             ],
-                          ),
-                        ],
-                      )),
+                          )
+                        : Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'คุณยังไม่เคยประเมินหัวข้อ ',
+                                  style: GoogleFonts.prompt(
+                                    textStyle: TextStyle(
+                                        fontSize: 24, color: Colors.white),
+                                  ),
+                                ),
+                                SizedBox(
+                                    height: 10), // เพิ่มระยะห่างระหว่างข้อความ
+                                Text(
+                                  '${widget.formType_name}',
+                                  style: GoogleFonts.prompt(
+                                    textStyle: TextStyle(
+                                        fontSize: 18, color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )),
           ],
         ),
       ),
